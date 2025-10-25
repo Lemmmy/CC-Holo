@@ -146,6 +146,8 @@ local text4 = canvas2d.addText(4, 104, textutils.serializeJSON({
 -- Text2d.setTextJson(json:string) -- Minecraft formatted text JSON. maximum 32767 chars
 -- Text2d.setShadow(shadow:boolean)
 -- Text2d.setLineHeight(lineHeight:number) -- defaults to 9
+-- Text2d.setMaxWidth(width:number) -- only supported for JSON text. set to 0 to disable
+-- Text2d.setHorizontalAlignment(alignment:string) -- either "left", "center"/"centre", or "right"
 
 -- Triangle2d
 --   function(p1:table, p2:table, p3:table[, colour:number]):Triangle2d

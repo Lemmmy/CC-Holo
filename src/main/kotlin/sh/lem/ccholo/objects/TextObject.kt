@@ -16,6 +16,7 @@ interface TextObject {
   var component: Component?
   var dropShadow: Boolean
   var lineHeight: Short
+  var maxWidth: Int
 
   /**
    * function():string -- Get the text for this object, either as plaintext or as a JSON string.
@@ -79,6 +80,21 @@ interface TextObject {
     return MethodResult.of() // wrap in MethodResult to avoid signature conflict
   }
 
+  /**
+   * function():number -- Get the max width for this object.
+   */
+  @LuaFunction
+  fun getMaxWidth(): MethodResult = MethodResult.of(maxWidth)
+
+  /**
+   * function(number) -- Set the max width for this object.
+   */
+  @LuaFunction
+  fun setMaxWidth(width: Int): MethodResult {
+    maxWidth = if (width > 0) width else Int.MAX_VALUE
+    return MethodResult.of()
+  }
+
   companion object {
     /**
      * We use a two-dimensional string array to indicate where tabs are.
@@ -87,7 +103,7 @@ interface TextObject {
      *
      * This is used in the rendering to simulate tabs.
      */
-    internal val EMPTY_LINES: List<List<String>> = emptyList()
+    internal val EMPTY_LINES = SplitTabulatedTextLines(emptyList())
 
     /**
      * Same as Minecraft's default font
@@ -100,58 +116,6 @@ interface TextObject {
      */
     const val TAB_WIDTH = 16
 
-    private val SPLIT_PATTERN = Regex("\r\n|\n|\r")
-    private val TAB_PATTERN = Regex("\t")
-
     const val MAX_LENGTH = 32767
-
-    internal fun splitText(text: String?): List<List<String>> {
-      if (text == null) return EMPTY_LINES
-
-      val lines = SPLIT_PATTERN.split(text)
-
-      val splitLines: MutableList<MutableList<String>> = MutableList(lines.size) { mutableListOf() }
-      val format = StringBuilder()
-      for ((i, line) in lines.withIndex()) {
-        val tabs = line.split(TAB_PATTERN).toMutableList()
-        splitLines[i] = tabs
-
-        for ((j, tab) in tabs.withIndex()) {
-          format.append(tab)
-          appendFormat(format, format.toString().also { tabs[j] = it })
-        }
-      }
-
-      return splitLines
-    }
-
-    private fun appendFormat(builder: StringBuilder, text: String) {
-      builder.setLength(0)
-
-      val l = text.length
-      var i = -1
-
-      while (text.indexOf('\u00a7', i + 1).also { i = it } != -1) {
-        if (i < l - 1) {
-          val c0 = text[i + 1]
-
-          if (isFormatColor(c0)) {
-            builder.setLength(0)
-            builder.append('\u00a7').append(c0)
-          } else if (isFormatSpecial(c0)) {
-            builder.append('\u00a7').append(c0)
-          }
-        }
-      }
-    }
-
-    private fun isFormatColor(colorChar: Char) =
-      (colorChar in '0'..'9' || colorChar >= 'a') && colorChar <= 'f' || colorChar in 'A'..'F'
-
-    /**
-     * Checks if the char code is O-K...lLrRk-o... used to set special formatting.
-     */
-    private fun isFormatSpecial(formatChar: Char) =
-      (formatChar in 'k'..'o' || formatChar >= 'K') && formatChar <= 'O' || formatChar == 'r' || formatChar == 'R'
   }
 }
