@@ -10,6 +10,11 @@ local textObj = canvas2d.addText(4, 4, "", 0x000000FF)
 -------------------------------------------------------------------------------
 -- FUNCTIONS
 -------------------------------------------------------------------------------
+-- Clear all key captures for a player (does not stop capture mode)
+hologram.clearKeyCaptures(username)
+-- Clearing all canvases will also clear and stop all captures server-wide, for every player
+-- hologram.clearAllCanvasesGlobally()
+
 -- Enter capture mode:
 -- hologram.startCapture(username)
 -- hologram.stopCapture(username)
@@ -18,11 +23,6 @@ local textObj = canvas2d.addText(4, 4, "", 0x000000FF)
 hologram.startKeyCapture(username, keys.g)
 -- hologram.stopKeyCapture(username, key)
 print("Press G to start capture")
-
--- Clear all key captures for a player (does not stop capture mode)
--- hologram.clearKeyCaptures(username)
--- Clear and stop all captures server-wide, for every player
--- hologram.clearAllCaptures()
 
 -------------------------------------------------------------------------------
 -- EVENTS

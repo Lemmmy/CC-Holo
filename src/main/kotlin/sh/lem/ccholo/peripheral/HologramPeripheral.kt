@@ -120,6 +120,16 @@ class HologramPeripheral(
     return MethodResult.of(true)
   }
 
+  /**
+   * function(player:string) -- Clear all key captures for a player (does not stop capture mode).
+   */
+  @LuaFunction(unsafe = true)
+  fun clearKeyCaptures(playerName: String): MethodResult {
+    val (player, root) = getPlayerCanvasRoot(playerName)
+    root.clearKeyCaptures(this, player)
+    return MethodResult.of(true)
+  }
+
   override fun attach(computer: IComputerAccess) {
     attachedComputers.add(computer)
   }

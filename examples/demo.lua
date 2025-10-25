@@ -9,7 +9,7 @@ local x, y, z = hologram.getPosition()
 -- Convenience function to get the name of the world the hologram peripheral is in
 local world = hologram.getDimension()
 
--- Clear all holograms server-wide, for every player and world
+-- Clear all holograms server-wide, for every player and world. Will also clear and stop all captures.
 hologram.clearAllCanvasesGlobally()
 
 -------------------------------------------------------------------------------

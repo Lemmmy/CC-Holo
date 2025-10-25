@@ -150,6 +150,14 @@ class CanvasRootServer: CanvasRoot() {
     sendCaptureStatePacket(player)
   }
 
+  @Synchronized
+  fun clearKeyCaptures(peripheral: HologramPeripheral?, player: ServerPlayer) {
+    peripheral?.let { listeners.add(it) }
+
+    keyCaptures.clear()
+    sendCaptureStatePacket(player)
+  }
+
   fun queueEvent(event: String, vararg args: Any) {
     listeners.forEach {
       it.queueEvent(event, *args)
