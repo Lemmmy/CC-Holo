@@ -112,7 +112,9 @@ object Text2dRenderer: BaseObjectRenderer<Text2d> {
     with (obj) {
       plaintextLines = splitText(plaintext)
       componentLines = component?.let {
-        splitComponent(it, maxWidth)
+        // Account for the scale of the text when applying the max width, so the value stays relative to the absolute
+        // positioning of the text object (not any subsequent parent frames, though)
+        splitComponent(it, (maxWidth / scale).toInt())
       }?.also { lines ->
         componentLineWidths = lines.map { c -> font.width(c) }.toIntArray()
       }
