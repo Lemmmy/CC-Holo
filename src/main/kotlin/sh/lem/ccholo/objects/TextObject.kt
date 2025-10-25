@@ -3,7 +3,7 @@ package sh.lem.ccholo.objects
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.api.lua.MethodResult
-import sh.lem.ccholo.util.assertStringLength
+import sh.lem.ccholo.util.assertUtf8StringLength
 
 /**
  * An object which contains text.
@@ -24,7 +24,7 @@ interface TextObject {
    */
   @LuaFunction
   fun setText(args: IArguments) {
-    text = args.assertStringLength(0, 0, MAX_LENGTH)
+    text = args.assertUtf8StringLength(0, 0, MAX_LENGTH)
   }
 
   /**
@@ -80,7 +80,7 @@ interface TextObject {
     private val SPLIT_PATTERN = Regex("\r\n|\n|\r")
     private val TAB_PATTERN = Regex("\t")
 
-    const val MAX_LENGTH = 1024
+    const val MAX_LENGTH = 32768
 
     internal fun splitText(text: String): List<List<String>> {
       val lines = SPLIT_PATTERN.split(text)

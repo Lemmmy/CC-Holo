@@ -74,7 +74,7 @@ interface Group2d : ObjectGroup {
   @LuaFunction
   fun addText(args: IArguments): Text2d {
     val position = args.getVec2(0)
-    val contents = args.assertStringLength(2, 0, TextObject.MAX_LENGTH)
+    val contents = args.assertUtf8StringLength(2, 0, TextObject.MAX_LENGTH)
     val colour = args.optInt(3, DEFAULT_COLOUR.toInt())
     val size = args.optDouble(4, 1.0).toFloat()
 

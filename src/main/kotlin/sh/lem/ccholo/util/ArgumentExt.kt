@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.registries.ForgeRegistries
+import java.nio.charset.StandardCharsets
 
 fun IArguments.getVec2(startIndex: Int = 0): Vec2 =
   getVec2Nullable(startIndex) ?: throw badArgumentOf(this, startIndex, "number")
@@ -95,6 +96,18 @@ fun IArguments.getItem(index: Int): Item {
     ?: throw LuaException("Invalid item id '${getString(index)}'")
   if (!ForgeRegistries.ITEMS.containsKey(id)) throw LuaException("Unknown item '$id'")
   return ForgeRegistries.ITEMS.getValue(id)!!
+}
+
+fun IArguments.getUtf8String(index: Int): String {
+  val buf = getBytes(index)
+  return StandardCharsets.UTF_8.decode(buf).toString()
+}
+
+fun IArguments.assertUtf8StringLength(index: Int, min: Int, max: Int,
+                                      message: String = "string length out of bounds (%s)"): String {
+  val value = getUtf8String(index)
+  assertIntBetweenImpl(value.length, min, max, message)
+  return value
 }
 
 private fun Map<*, *>.getFiniteDouble(key: Any): Double {
