@@ -1,0 +1,34 @@
+modLoader="kotlinforforge"
+loaderVersion = "[4,)" # the loader is kotlin for forge
+license="MIT"
+
+[[mods]]
+modId="ccholo"
+version="${file.jarVersion}"
+displayName="CC-Holo"
+authors="You"
+description='''
+Creative holograms for CC: Tweaked.
+'''
+
+[[dependencies.ccholo]]
+modId="forge"
+mandatory=true
+versionRange="[${forgeVersion},48)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ccholo]]
+modId="minecraft"
+mandatory=true
+versionRange="[${minecraftVersion},]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ccholo]]
+modId="computercraft"
+mandatory=true
+versionRange="[${ccTweakedVersion},]"
+ordering="NONE"
+side="BOTH"
+
