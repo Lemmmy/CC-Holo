@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 abstract class CanvasRoot {
   /** Whether the player is currently in 'capture' mode (all keyboard & mouse inputs are being captured modally) */
   var capturing = false
+  var capturingMouseMove = false
 
   /** Defined specific key captures that happen globally during gameplay. GLFW keycodes */
   val keyCaptures = IntOpenHashSet()

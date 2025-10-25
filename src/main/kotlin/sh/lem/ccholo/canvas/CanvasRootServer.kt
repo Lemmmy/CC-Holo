@@ -48,7 +48,13 @@ class CanvasRootServer: CanvasRoot() {
 
   @Synchronized
   fun makeInitPacket(): S2CCanvasInitPacket? = try {
-    S2CCanvasInitPacket(rootId, objects.values, capturing, keyCaptures)
+    S2CCanvasInitPacket(
+      canvasId = rootId,
+      objects = objects.values,
+      capturing = capturing,
+      capturingMouseMove = capturingMouseMove,
+      keyCaptures = keyCaptures
+    )
   } catch (e: Exception) {
     CCHolo.log.error("Error while making add packet. Object list was abandoned", e)
     null
@@ -87,9 +93,10 @@ class CanvasRootServer: CanvasRoot() {
   @Synchronized
   private fun makeCaptureStatePacket(): S2CCanvasCaptureStatePacket =
     S2CCanvasCaptureStatePacket(
-      rootId,
-      capturing,
-      keyCaptures
+      canvasId = rootId,
+      capturing = capturing,
+      capturingMouseMove = capturingMouseMove,
+      keyCaptures = keyCaptures
     )
 
   private fun sendCaptureStatePacket(player: ServerPlayer) {
@@ -116,11 +123,12 @@ class CanvasRootServer: CanvasRoot() {
   }
 
   @Synchronized
-  fun startCapture(peripheral: HologramPeripheral?, player: ServerPlayer) {
+  fun startCapture(peripheral: HologramPeripheral?, player: ServerPlayer, includeMouseMove: Boolean) {
     peripheral?.let { listeners.add(it) }
 
     if (capturing) queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     capturing = true
+    capturingMouseMove = includeMouseMove
     sendCaptureStatePacket(player)
   }
 
@@ -130,6 +138,7 @@ class CanvasRootServer: CanvasRoot() {
 
     if (!capturing) return
     capturing = false
+    capturingMouseMove = false
     queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     if (sendPacket) sendCaptureStatePacket(player)
   }

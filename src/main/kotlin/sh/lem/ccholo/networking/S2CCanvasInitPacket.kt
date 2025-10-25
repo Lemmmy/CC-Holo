@@ -15,12 +15,14 @@ data class S2CCanvasInitPacket(
   val canvasId: Int = 0,
   val objects: Collection<BaseObject> = emptyList(),
   val capturing: Boolean = false,
+  val capturingMouseMove: Boolean = false,
   val keyCaptures: IntSet = IntOpenHashSet()
 ) {
   fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeCollection(objects, ObjectRegistry::write)
     buf.writeBoolean(capturing)
+    buf.writeBoolean(capturingMouseMove)
     buf.writeVarIntArray(keyCaptures.toIntArray())
   }
 
@@ -28,7 +30,10 @@ data class S2CCanvasInitPacket(
     fun decode(buf: FriendlyByteBuf) = S2CCanvasInitPacket(
       canvasId = buf.readInt(),
       objects = buf.readCollection({ mutableListOf<BaseObject>() }, ObjectRegistry::read)
-        .apply { sortWith(BaseObject.SORTING_ORDER) } // Sort by ID to guarantee parents load before their children
+        .apply { sortWith(BaseObject.SORTING_ORDER) }, // Sort by ID to guarantee parents load before their children
+      capturing = buf.readBoolean(),
+      capturingMouseMove = buf.readBoolean(),
+      keyCaptures = IntOpenHashSet(buf.readVarIntArray())
     )
 
     fun handle(msg: S2CCanvasInitPacket, ctx: Supplier<NetworkEvent.Context>) {

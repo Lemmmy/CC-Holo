@@ -44,6 +44,12 @@ object HologramEvents {
   const val EVENT_MOUSE_DRAG = "hologram_mouse_drag"
 
   /**
+   * Event fired when the mouse is moved (moved while nothing is held) in capture mode.
+   * Parameters: player:string, uuid:string, x:number, y:number
+   */
+  const val EVENT_MOUSE_MOVE = "hologram_mouse_move"
+
+  /**
    * Event fired when the mouse wheel is scrolled while in capture mode.
    * Parameters: player:string, uuid:string, direction:number, x:number, y:number
    */

@@ -87,7 +87,7 @@ class CCAttachedComputerSet {
    * @see IComputerAccess.queueEvent
    */
   fun queueEvent(event: String, @Nullable vararg arguments: Any) {
-    forEach { c -> c.queueEvent(event, arguments) }
+    forEach { c -> c.queueEvent(event, *arguments) }
   }
 
   /**

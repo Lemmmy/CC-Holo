@@ -16,6 +16,7 @@ import sh.lem.ccholo.util.CCAttachedComputerSet
 import sh.lem.ccholo.util.assertIntBetweenImpl
 import sh.lem.ccholo.util.toResult
 import sh.lem.ccholo.util.tryParseUuid
+import java.util.*
 
 class HologramPeripheral(
   val blockEntity: HologramBlockEntity,
@@ -78,12 +79,13 @@ class HologramPeripheral(
   }
 
   /**
-   * function(player:string) -- Starts capturing all mouse and keyboard inputs for a player.
+   * function(player:string, includeMouseMove:boolean) -- Starts capturing all mouse and keyboard inputs for a player.
+   * If `includeMouseMove` is `true`, then `hologram_mouse_move` events will also be fired.
    */
   @LuaFunction(unsafe = true)
-  fun startCapture(playerName: String): MethodResult {
+  fun startCapture(playerName: String, includeMouseMove: Optional<Boolean>): MethodResult {
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.startCapture(this, player)
+    root.startCapture(this, player, includeMouseMove.orElse(false))
     return MethodResult.of(true)
   }
 

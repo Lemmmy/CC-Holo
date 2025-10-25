@@ -12,11 +12,13 @@ import java.util.function.Supplier
 data class S2CCanvasCaptureStatePacket(
   val canvasId: Int = 0,
   val capturing: Boolean = false,
+  val capturingMouseMove: Boolean = false,
   val keyCaptures: IntSet = IntOpenHashSet()
 ) {
   fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeBoolean(capturing)
+    buf.writeBoolean(capturingMouseMove)
     buf.writeVarIntArray(keyCaptures.toIntArray())
   }
 
@@ -24,6 +26,7 @@ data class S2CCanvasCaptureStatePacket(
     fun decode(buf: FriendlyByteBuf) = S2CCanvasCaptureStatePacket(
       canvasId = buf.readInt(),
       capturing = buf.readBoolean(),
+      capturingMouseMove = buf.readBoolean(),
       keyCaptures = IntOpenHashSet(buf.readVarIntArray())
     )
 

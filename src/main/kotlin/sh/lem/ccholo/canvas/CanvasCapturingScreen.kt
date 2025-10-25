@@ -11,12 +11,14 @@ import sh.lem.ccholo.canvas.CanvasRoot.Companion.HEIGHT
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.WIDTH
 import sh.lem.ccholo.canvas.CanvasRootClient.capturing
+import sh.lem.ccholo.canvas.CanvasRootClient.capturingMouseMove
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.networking.C2SCanvasCaptureMousePacket.Event
 import sh.lem.ccholo.util.CCStringUtil
 import java.util.*
 
 private const val DRAG_INTERVAL_MS = 50
+private const val MOVE_INTERVAL_MS = 50
 
 class CanvasCapturingScreen: Screen(Component.translatable(
   "gui.${MOD_ID}.canvas.capturing.title",
@@ -33,7 +35,9 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   private var pendingDragY = -1.0
   private var timeLastDragSent = -1L
 
-  private val mc by lazy { Minecraft.getInstance() }
+  private var pendingMoveX = -1.0
+  private var pendingMoveY = -1.0
+  private var timeLastMoveSent = -1L
 
   override fun render(gg: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
     super.render(gg, mouseX, mouseY, partialTick)
@@ -42,6 +46,7 @@ class CanvasCapturingScreen: Screen(Component.translatable(
 
     val time = System.currentTimeMillis()
 
+    // Mouse drag events
     if (
       pendingDragButton in 0..2
       && pendingDragX >= 0
@@ -59,6 +64,23 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       pendingDragButton = -1
       pendingDragX = -1.0
       pendingDragY = -1.0
+    }
+
+    // Mouse move events
+    if (
+      pendingMoveX >= 0
+      && pendingMoveY >= 0
+      && time != -1L
+      && (timeLastMoveSent == -1L || time - timeLastMoveSent >= MOVE_INTERVAL_MS)
+    ) {
+      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+        event = Event.MOVE,
+        x = pendingMoveX,
+        y = pendingMoveY,
+      ))
+      timeLastMoveSent = time
+      pendingMoveX = -1.0
+      pendingMoveY = -1.0
     }
   }
 
@@ -185,6 +207,15 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     }
 
     return true
+  }
+
+  override fun mouseMoved(mouseX: Double, mouseY: Double) {
+    if (!capturingMouseMove || lastMouseButton >= 0) return
+
+    // Don't update lastMouse events for this
+    val (x, y) = mapPosition(mouseX, mouseY)
+    pendingMoveX = x
+    pendingMoveY = y
   }
 
   override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {

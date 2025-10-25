@@ -17,6 +17,7 @@ hologram.clearKeyCaptures(username)
 
 -- Enter capture mode:
 -- hologram.startCapture(username)
+-- hologram.startCapture(username, true) -- include hologram_mouse_move events
 -- hologram.stopCapture(username)
 
 -- Global key capture:
@@ -48,6 +49,9 @@ print("Press G to start capture")
 -- `hologram_mouse_drag`
 --   Fired when the mouse is dragged (moved while a button is held) in capture mode.
 --   Parameters: player:string, uuid:string, last_button:number, x:number, y:number
+-- `hologram_mouse_move`
+--   Fired when the mouse is moved (moved while nothing is held) in capture mode.
+--   Parameters: player:string, uuid:string, x:number, y:number
 -- `hologram_mouse_scroll`
 --   Fired when the mouse wheel is scrolled while in capture mode.
 --   Parameters: player:string, uuid:string, direction:number, x:number, y:number
@@ -93,7 +97,7 @@ while true do
     -- data[6] = capture mode (for entering capture mode, let's only focus on non-capture mode key inputs)
     if event == "hologram_key" and data[4] == keys.g and not data[5] and not data[6] then
       print("Starting capture")
-      hologram.startCapture(data[3])
+      hologram.startCapture(data[3], true)
     end
   end
 

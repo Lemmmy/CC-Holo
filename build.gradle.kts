@@ -134,7 +134,7 @@ tasks.jar {
 (findProperty("modrinthApiKey") as? String?)?.let { modrinthKey ->
   modrinth {
     token.set(modrinthKey)
-    projectId.set("LDfFdCXe")
+    projectId.set("DuhavUpy")
     versionNumber.set("${libs.versions.minecraft.get()}-$modVersion")
     versionName.set(modVersion)
     versionType.set("release")

@@ -30,7 +30,11 @@ object CanvasHandlerClient {
     val root = CanvasRootClient
     root.initialise()
     msg.objects.onEach(root::updateObject)
-    root.updateCaptureState(msg.capturing, msg.keyCaptures)
+    root.updateCaptureState(
+      capturing = msg.capturing,
+      capturingMouseMove = msg.capturingMouseMove,
+      keyCaptures = msg.keyCaptures
+    )
   }
 
   internal fun onCanvasRemovePacket(msg: S2CCanvasRemovePacket) {
@@ -51,7 +55,11 @@ object CanvasHandlerClient {
     if (!checkMainThread("S2CCanvasCaptureStatePacket")) return
 
     val root = CanvasRootClient
-    root.updateCaptureState(msg.capturing, msg.keyCaptures)
+    root.updateCaptureState(
+      capturing = msg.capturing,
+      capturingMouseMove = msg.capturingMouseMove,
+      keyCaptures = msg.keyCaptures
+    )
   }
 
   @SubscribeEvent

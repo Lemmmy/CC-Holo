@@ -30,6 +30,7 @@ object CanvasRootClient : CanvasRoot() {
     childrenOf.put(ID_2D, IntAVLTreeSet())
     childrenOf.put(ID_3D, IntAVLTreeSet())
     capturing = false
+    capturingMouseMove = false
     capturePendingOpen = false
     keyCaptures.clear()
 
@@ -46,9 +47,11 @@ object CanvasRootClient : CanvasRoot() {
 
   fun updateCaptureState(
     capturing: Boolean,
+    capturingMouseMove: Boolean,
     keyCaptures: IntSet
   ) {
     this.capturing = capturing
+    this.capturingMouseMove = capturing && capturingMouseMove
     if (capturing) this.capturePendingOpen = true
     this.keyCaptures.clear()
     this.keyCaptures.addAll(keyCaptures)
