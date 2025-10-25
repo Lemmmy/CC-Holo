@@ -1,30 +1,53 @@
 package sh.lem.ccholo.objects
 
 import dan200.computercraft.api.lua.IArguments
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.api.lua.MethodResult
+import net.minecraft.network.chat.Component
+import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.util.assertUtf8StringLength
 
 /**
  * An object which contains text.
  */
 interface TextObject {
-  var text: String
+  var plaintext: String?
+  var component: Component?
   var dropShadow: Boolean
   var lineHeight: Short
 
   /**
-   * function():string -- Get the text for this object.
+   * function():string -- Get the text for this object, either as plaintext or as a JSON string.
    */
   @LuaFunction
-  fun getText(): MethodResult = MethodResult.of(text) // wrap in MethodResult to avoid signature conflict
+  fun getText(): String =
+    component?.let { Component.Serializer.toStableJson(it) }
+      ?: plaintext
+      ?: ""
 
   /**
-   * function(string) -- Set the text for this object.
+   * function(string) -- Set the text for this object as plaintext. May contain newlines and tabs. Maximum 32767 chars.
    */
   @LuaFunction
   fun setText(args: IArguments) {
-    text = args.assertUtf8StringLength(0, 0, MAX_LENGTH)
+    plaintext = args.assertUtf8StringLength(0, 0, MAX_LENGTH)
+    component = null
+  }
+
+  /**
+   * function(string) -- Set the text for this object as a JSON string. Maximum 32767 chars.
+   */
+  @LuaFunction
+  fun setTextJson(args: IArguments) {
+    val json = args.assertUtf8StringLength(0, 0, MAX_LENGTH)
+    try {
+      component = Component.Serializer.fromJson(json)
+      plaintext = null
+    } catch (e: Exception) {
+      CCHolo.log.error("Invalid JSON string: $json", e)
+      throw LuaException("Invalid JSON string")
+    }
   }
 
   /**
@@ -80,9 +103,11 @@ interface TextObject {
     private val SPLIT_PATTERN = Regex("\r\n|\n|\r")
     private val TAB_PATTERN = Regex("\t")
 
-    const val MAX_LENGTH = 32768
+    const val MAX_LENGTH = 32767
 
-    internal fun splitText(text: String): List<List<String>> {
+    internal fun splitText(text: String?): List<List<String>> {
+      if (text == null) return EMPTY_LINES
+
       val lines = SPLIT_PATTERN.split(text)
 
       val splitLines: MutableList<MutableList<String>> = MutableList(lines.size) { mutableListOf() }

@@ -1,7 +1,10 @@
 package sh.lem.ccholo.objects.object2d
 
 import dan200.computercraft.api.lua.IArguments
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
+import net.minecraft.network.chat.Component
+import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.objects.DEFAULT_COLOUR
 import sh.lem.ccholo.objects.ObjectGroup
 import sh.lem.ccholo.objects.TextObject
@@ -69,7 +72,8 @@ interface Group2d : ObjectGroup {
   }
 
   /**
-   * function(x:number, y:number, contents:string[, colour:number[, size:number]]):Text2d -- Create a new text object.
+   * function(x:number, y:number, contents:string[, colour:number[, size:number[, json:boolean]]]):Text2d -- Create a
+   * new text object.
    */
   @LuaFunction
   fun addText(args: IArguments): Text2d {
@@ -77,12 +81,25 @@ interface Group2d : ObjectGroup {
     val contents = args.assertUtf8StringLength(2, 0, TextObject.MAX_LENGTH)
     val colour = args.optInt(3, DEFAULT_COLOUR.toInt())
     val size = args.optDouble(4, 1.0).toFloat()
+    val json = args.optBoolean(5, false)
+
+    val component = if (json) try {
+      Component.Serializer.fromJson(contents)
+    } catch (e: Exception) {
+      CCHolo.log.error("Invalid JSON string: $contents", e)
+      throw LuaException("Invalid JSON string")
+    } else null
 
     val text = Text2d(canvasRootServer.newObjectId(), id, canvasRootServer)
     text.position = position
-    text.text = contents
     text.colour = colour
     text.scale = size
+
+    if (json) {
+      text.component = component
+    } else {
+      text.plaintext = contents
+    }
 
     canvasRootServer.add(text)
     return text

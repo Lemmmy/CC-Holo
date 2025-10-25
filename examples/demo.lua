@@ -125,17 +125,25 @@ local dot3 = canvas2d.addDot(12, 4, 0xFF0000FF, 3) -- with scale
 -- Dot2d.setScale(scale:number)
 
 -- Text2d
---   function(x:number, y: number[, color:number][, size:number]):Text2d
+--   function(x:number, y:number, contents:string[, colour:number[, size:number[, json:boolean]]]):Text2d
 local text1 = canvas2d.addText(4, 48, "graphics design is my passion")
 local text2 = canvas2d.addText(4, 60, "hello, world!\nline 2", 0xFF0000FF) -- newlines are supported
-local text3 = canvas2d.addText(4, 82, "AAA", 0xFF0000FF, 3) -- with scale
+local text3 = canvas2d.addText(4, 82, "AAA レミ", 0xFF0000FF, 3) -- with scale and UTF-8
 text3.setShadow(true) -- with drop shadow
+local text4 = canvas2d.addText(4, 104, textutils.serializeJSON({
+  "", -- the first element of text JSON determines the root formatting, so it's common to set the first element to an
+      -- empty string with no formatting
+  { text = "Hello, " },
+  { text = "world", bold = true, color = "yellow" },
+  { text = "!", bold = true },
+}), 0xFFFFFFFF, 1, true) -- with JSON object
 -- Text2d.setPosition(x:number, y:number)
 -- Text2d.setColour(rrggbbaa:number)
 -- Text2d.setColour(r:number, g:number, b:number[, a:number])
 -- Text2d.setAlpha(alpha:number)
 -- Text2d.setScale(scale:number)
--- Text2d.setText(text:string)
+-- Text2d.setText(text:string) -- plaintext string (newlines and tabs supported). maximum 32767 chars
+-- Text2d.setTextJson(json:string) -- Minecraft formatted text JSON. maximum 32767 chars
 -- Text2d.setShadow(shadow:boolean)
 -- Text2d.setLineHeight(lineHeight:number) -- defaults to 9
 

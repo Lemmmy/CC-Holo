@@ -29,6 +29,10 @@ object Text2dRenderer: BaseObjectRenderer<Text2d> {
       if (alpha == 0) return
       if (alpha and 0xFC == 0) colour = colour or 0x4
 
+      val plaintext = plaintext
+      val component = component
+      if (plaintext == null && component == null) return
+
       BaseObjectRenderer.setupFlat()
 
       val font = Minecraft.getInstance().font
@@ -42,21 +46,29 @@ object Text2dRenderer: BaseObjectRenderer<Text2d> {
       val immediate = MultiBufferSource.immediate(builder)
       val pose = poseStack.last().pose()
 
-      var y = 0
-      for (fullLine in lines) {
-        var x = 0
-        for (tabSection in fullLine) {
-          // We use 0xRRGGBBAA, but the font renderer expects 0xAARRGGBB, so we rotate the bits
-          x = font.drawInBatch(
-            tabSection, x.toFloat(), y.toFloat(), Integer.rotateRight(colour, 8), dropShadow, pose, immediate,
-            Font.DisplayMode.NORMAL, 0, FULL_BRIGHT
-          )
+      if (component != null) {
+        // Component rendering - supports full Minecraft text JSON
+        font.drawInBatch(
+          component, 0f, 0f, colour, dropShadow, pose, immediate, Font.DisplayMode.NORMAL, 0, FULL_BRIGHT
+        )
+      } else {
+        // Plaintext rendering - supports newlines and tab stops
+        var y = 0
+        for (fullLine in lines) {
+          var x = 0
+          for (tabSection in fullLine) {
+            // We use 0xRRGGBBAA, but the font renderer expects 0xAARRGGBB, so we rotate the bits
+            x = font.drawInBatch(
+              tabSection, x.toFloat(), y.toFloat(), Integer.rotateRight(colour, 8), dropShadow, pose, immediate,
+              Font.DisplayMode.NORMAL, 0, FULL_BRIGHT
+            )
 
-          // Round the X coordinate to the next tab stop.
-          x = x / TAB_WIDTH * TAB_WIDTH + TAB_WIDTH
+            // Round the X coordinate to the next tab stop.
+            x = x / TAB_WIDTH * TAB_WIDTH + TAB_WIDTH
+          }
+
+          y += lineHeight.toInt()
         }
-
-        y += lineHeight.toInt()
       }
 
       immediate.endBatch()
