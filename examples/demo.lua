@@ -142,7 +142,7 @@ local text4 = canvas2d.addText(4, 104, textutils.serializeJSON({
 -- Text2d.setColour(r:number, g:number, b:number[, a:number])
 -- Text2d.setAlpha(alpha:number)
 -- Text2d.setScale(scale:number)
--- Text2d.setText(text:string) -- plaintext string (newlines and tabs supported). maximum 32767 chars
+-- Text2d.setText(text:string) -- plaintext string (newlines, tabs, and format codes supported). maximum 32767 chars
 -- Text2d.setTextJson(json:string) -- Minecraft formatted text JSON. maximum 32767 chars
 -- Text2d.setShadow(shadow:boolean)
 -- Text2d.setLineHeight(lineHeight:number) -- defaults to 9
