@@ -167,6 +167,15 @@ class CanvasRootServer: CanvasRoot() {
     sendCaptureStatePacket(player)
   }
 
+  @Synchronized
+  fun setClipboard(peripheral: HologramPeripheral?, player: ServerPlayer, text: String) {
+    peripheral?.let { listeners.add(it) }
+
+    CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { player }, S2CCanvasSetClipboardPacket(
+      text = text
+    ))
+  }
+
   fun queueEvent(event: String, vararg args: Any) {
     listeners.forEach {
       it.queueEvent(event, *args)

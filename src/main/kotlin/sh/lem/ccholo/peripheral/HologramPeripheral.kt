@@ -1,5 +1,6 @@
 package sh.lem.ccholo.peripheral
 
+import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.api.lua.MethodResult
@@ -10,12 +11,10 @@ import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.canvas.CanvasHandlerServer
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRootServer
+import sh.lem.ccholo.networking.S2CCanvasSetClipboardPacket
 import sh.lem.ccholo.objects.object2d.Frame2d
 import sh.lem.ccholo.objects.object3d.WrappedOrigin3d
-import sh.lem.ccholo.util.CCAttachedComputerSet
-import sh.lem.ccholo.util.assertIntBetweenImpl
-import sh.lem.ccholo.util.toResult
-import sh.lem.ccholo.util.tryParseUuid
+import sh.lem.ccholo.util.*
 import java.util.*
 
 class HologramPeripheral(
@@ -129,6 +128,19 @@ class HologramPeripheral(
   fun clearKeyCaptures(playerName: String): MethodResult {
     val (player, root) = getPlayerCanvasRoot(playerName)
     root.clearKeyCaptures(this, player)
+    return MethodResult.of(true)
+  }
+
+  /**
+   * function(player:string, clipboard:string) -- Sets the clipboard for a player.
+   */
+  @LuaFunction(unsafe = true)
+  fun setClipboard(args: IArguments): MethodResult {
+    val playerName = args.getString(0)
+    val clipboard = args.assertUtf8StringLength(1, 1, S2CCanvasSetClipboardPacket.PASTE_LIMIT)
+
+    val (player, root) = getPlayerCanvasRoot(playerName)
+    root.setClipboard(this, player, clipboard)
     return MethodResult.of(true)
   }
 

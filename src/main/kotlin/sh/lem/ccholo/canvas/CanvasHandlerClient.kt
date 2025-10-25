@@ -6,10 +6,7 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import sh.lem.ccholo.CCHolo
-import sh.lem.ccholo.networking.S2CCanvasCaptureStatePacket
-import sh.lem.ccholo.networking.S2CCanvasInitPacket
-import sh.lem.ccholo.networking.S2CCanvasRemovePacket
-import sh.lem.ccholo.networking.S2CCanvasUpdatePacket
+import sh.lem.ccholo.networking.*
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 object CanvasHandlerClient {
@@ -60,6 +57,16 @@ object CanvasHandlerClient {
       capturingMouseMove = msg.capturingMouseMove,
       keyCaptures = msg.keyCaptures
     )
+  }
+
+  internal fun onCanvasSetClipboardPacket(msg: S2CCanvasSetClipboardPacket) {
+    if (!checkMainThread("S2CCanvasSetClipboardPacket")) return
+
+    try {
+      Minecraft.getInstance().keyboardHandler.clipboard = msg.text
+    } catch (e: Exception) {
+      CCHolo.log.error("Error while setting clipboard", e)
+    }
   }
 
   @SubscribeEvent

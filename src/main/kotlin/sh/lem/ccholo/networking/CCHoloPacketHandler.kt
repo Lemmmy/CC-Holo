@@ -45,6 +45,12 @@ object CCHoloPacketHandler {
       .consumerMainThread(S2CCanvasCaptureStatePacket::handle)
       .add()
 
+    channel.messageBuilder(S2CCanvasSetClipboardPacket::class.java, id++, PLAY_TO_CLIENT)
+      .encoder(S2CCanvasSetClipboardPacket::encode)
+      .decoder(S2CCanvasSetClipboardPacket::decode)
+      .consumerMainThread(S2CCanvasSetClipboardPacket::handle)
+      .add()
+
     // C->S
     channel.messageBuilder(C2SCanvasStopCapturePacket::class.java, id++, PLAY_TO_SERVER)
       .encoder(C2SCanvasStopCapturePacket::encode)

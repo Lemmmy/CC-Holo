@@ -12,6 +12,9 @@ local world = hologram.getDimension()
 -- Clear all holograms server-wide, for every player and world. Will also clear and stop all captures.
 hologram.clearAllCanvasesGlobally()
 
+-- Set the clipboard for a player. Must be a non-empty UTF-8 string between 1 and 512 characters
+hologram.setClipboard(username, "Hello, world!")
+
 -------------------------------------------------------------------------------
 -- 3D OBJECTS
 -------------------------------------------------------------------------------
