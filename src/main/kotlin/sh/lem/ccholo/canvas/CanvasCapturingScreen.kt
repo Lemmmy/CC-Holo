@@ -7,9 +7,7 @@ import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW.*
 import sh.lem.ccholo.CCHolo.MOD_ID
 import sh.lem.ccholo.CCHoloClient
-import sh.lem.ccholo.canvas.CanvasRoot.Companion.HEIGHT
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
-import sh.lem.ccholo.canvas.CanvasRoot.Companion.WIDTH
 import sh.lem.ccholo.canvas.CanvasRootClient.capturing
 import sh.lem.ccholo.canvas.CanvasRootClient.capturingMouseMove
 import sh.lem.ccholo.canvas.CanvasRootClient.hidingMouse
@@ -68,12 +66,12 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       && time != -1L
       && (timeLastDragSent == -1L || time - timeLastDragSent >= DRAG_INTERVAL_MS)
     ) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+      C2SCanvasCaptureMousePacket(
         event = Event.DRAG,
         button = lastMouseButton + 1, // lua indexed
         x = pendingDragX,
         y = pendingDragY,
-      ))
+      ).send()
       timeLastDragSent = time
       pendingDragButton = -1
       pendingDragX = -1.0
@@ -87,11 +85,11 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       && time != -1L
       && (timeLastMoveSent == -1L || time - timeLastMoveSent >= MOVE_INTERVAL_MS)
     ) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+      C2SCanvasCaptureMousePacket(
         event = Event.MOVE,
         x = pendingMoveX,
         y = pendingMoveY,
-      ))
+      ).send()
       timeLastMoveSent = time
       pendingMoveX = -1.0
       pendingMoveY = -1.0
@@ -103,7 +101,7 @@ class CanvasCapturingScreen: Screen(Component.translatable(
 
     val terminalChar = CCStringUtil.unicodeToTerminal(ch.code)
     if (CCStringUtil.isTypableChar(terminalChar)) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureCharPacket(char = terminalChar))
+      C2SCanvasCaptureCharPacket(char = terminalChar).send()
     }
 
     return true
@@ -122,12 +120,12 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       val repeat = keysDown.get(key)
       keysDown.set(key)
 
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
+      C2SCanvasCaptureKeyPacket(
         key = key,
         down = true,
         repeat = repeat,
         captureMode = capturing
-      ))
+      ).send()
 
       return true
     }
@@ -138,9 +136,7 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   private fun paste() {
     val clipboard = CCStringUtil.getClipboardString(Minecraft.getInstance().keyboardHandler.clipboard)
     if (clipboard.remaining() > 0) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCapturePastePacket(
-        text = clipboard
-      ))
+      C2SCanvasCapturePastePacket(text = clipboard).send()
     }
   }
 
@@ -148,11 +144,11 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     if (key >= 0 && keysDown.get(key)) {
       keysDown.set(key, false)
 
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
+      C2SCanvasCaptureKeyPacket(
         key = key,
         down = false,
         captureMode = capturing
-      ))
+      ).send()
 
       return true
     }
@@ -161,19 +157,20 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   }
 
   private fun mapPosition(x: Double, y: Double): Pair<Double, Double> =
-    (x * WIDTH / width).coerceIn(0.0, WIDTH.toDouble()) to (y * HEIGHT / height).coerceIn(0.0, HEIGHT.toDouble())
+    // (x * BASE_WIDTH / width).coerceIn(0.0, BASE_WIDTH.toDouble()) to (y * BASE_HEIGHT / height).coerceIn(0.0, BASE_HEIGHT.toDouble())
+    x to y
 
   override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
     if (!capturing || button !in 0..2) return false
 
     val (x, y) = mapPosition(mouseX, mouseY)
 
-    CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+    C2SCanvasCaptureMousePacket(
       event  = Event.CLICK,
       button = button + 1, // lua indexed
       x      = x,
       y      = y,
-    ))
+    ).send()
 
     timeLastDragSent = -1L // in case the clock resets
     lastMouseButton = button
@@ -194,14 +191,12 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     val (x, y) = mapPosition(mouseX, mouseY)
 
     if (lastMouseButton == button) {
-      CCHoloPacketHandler.channel.sendToServer(
-        C2SCanvasCaptureMousePacket(
-          event = Event.UP,
-          button = button + 1, // lua indexed
-          x = x,
-          y = y,
-        )
-      )
+      C2SCanvasCaptureMousePacket(
+        event = Event.UP,
+        button = button + 1, // lua indexed
+        x = x,
+        y = y,
+      ).send()
       lastMouseButton = -1
     }
 
@@ -241,14 +236,11 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     if (!capturing) return false
 
     val (x, y) = mapPosition(mouseX, mouseY)
-
-    CCHoloPacketHandler.channel.sendToServer(
-      C2SCanvasCaptureScrollPacket(
-        direction = if (delta > 0) 1 else -1,
-        x = x,
-        y = y,
-      )
-    )
+    C2SCanvasCaptureScrollPacket(
+      direction = if (delta > 0) 1 else -1,
+      x = x,
+      y = y,
+    ).send()
 
     return true
   }
@@ -256,23 +248,23 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   private fun clearInputs() {
     for (i in 0 until keysDown.size()) {
       if (keysDown.get(i)) {
-        CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
+        C2SCanvasCaptureKeyPacket(
           key = i,
           down = false,
           captureMode = capturing
-        ))
+        ).send()
       }
     }
 
     keysDown.clear()
 
     if (lastMouseButton >= 0) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+      C2SCanvasCaptureMousePacket(
         event = Event.UP,
         button = lastMouseButton + 1, // lua indexed
         x = lastMouseX,
         y = lastMouseY,
-      ))
+      ).send()
       lastMouseButton = -1
     }
 

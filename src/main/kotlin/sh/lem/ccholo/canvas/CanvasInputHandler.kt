@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod
 import org.lwjgl.glfw.GLFW.GLFW_PRESS
 import org.lwjgl.glfw.GLFW.GLFW_REPEAT
 import sh.lem.ccholo.networking.C2SCanvasCaptureKeyPacket
-import sh.lem.ccholo.networking.CCHoloPacketHandler
+import sh.lem.ccholo.networking.send
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 object CanvasInputHandler {
@@ -17,10 +17,20 @@ object CanvasInputHandler {
 
   @SubscribeEvent
   fun onClientTick(event: TickEvent.ClientTickEvent) {
-    // Open the key capture screen if an open is pending
-    if (event.phase === TickEvent.Phase.END && CanvasRootClient.capturePendingOpen && mc.screen == null) {
-      mc.setScreen(CanvasCapturingScreen())
-      CanvasRootClient.capturePendingOpen = false
+    if (event.phase === TickEvent.Phase.END && mc.level != null) {
+      val root = CanvasRootClient
+
+      // Open the key capture screen if an open is pending
+      if (root.capturePendingOpen && mc.screen == null) {
+        mc.setScreen(CanvasCapturingScreen())
+        root.capturePendingOpen = false
+      }
+
+      // Send screen size packet if the screen size has changed
+      root.updateScreenSize()
+      if (root.pollScreenSizeDirty()) {
+        root.sendScreenSizePacket()
+      }
     }
   }
 
@@ -28,12 +38,12 @@ object CanvasInputHandler {
   fun onKeyInput(event: InputEvent.Key) {
     // Forward subscribed key captures
     if (mc.screen == null && CanvasRootClient.keyCaptures.contains(event.key)) {
-      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
+      C2SCanvasCaptureKeyPacket(
         key = event.key,
         down = event.action == GLFW_PRESS || event.action == GLFW_REPEAT,
         repeat = event.action == GLFW_REPEAT,
         captureMode = false
-      ))
+      ).send()
     }
   }
 }

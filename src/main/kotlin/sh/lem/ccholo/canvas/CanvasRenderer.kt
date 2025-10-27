@@ -55,7 +55,7 @@ object CanvasRenderer {
 
     // The hotbar renders at -90 (see Gui#renderHotbar)
     poseStack.translate(0.0, 0.0, -200.0)
-    poseStack.scale(mc.window.guiScaledWidth.toFloat() / CanvasRoot.WIDTH, mc.window.guiScaledHeight.toFloat() / CanvasRoot.HEIGHT, 1f)
+    // poseStack.scale(mc.window.guiScaledWidth.toFloat() / CanvasRoot.BASE_WIDTH, mc.window.guiScaledHeight.toFloat() / CanvasRoot.BASE_HEIGHT, 1f)
 
     CanvasRootClient.drawChildren(children.iterator(), gg, null)
 

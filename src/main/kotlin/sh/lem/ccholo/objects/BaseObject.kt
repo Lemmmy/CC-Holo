@@ -5,30 +5,20 @@ import net.minecraft.network.FriendlyByteBuf
 import sh.lem.ccholo.canvas.CanvasRoot
 import sh.lem.ccholo.canvas.CanvasRootClient
 import sh.lem.ccholo.canvas.CanvasRootServer
-import sh.lem.ccholo.util.Dirtyable
+import sh.lem.ccholo.util.BaseDirtyable
 
 abstract class BaseObject(
   val id: Int,
   val parent: Int,
   val type: Byte,
   val canvasRoot: CanvasRoot
-) : Dirtyable {
-  private var dirty = true
+) : BaseDirtyable {
+  override var dirty = true
 
   open val canvasRootClient: CanvasRootClient
     get() = canvasRoot as? CanvasRootClient ?: error("Tried to access client canvas from server context")
   open val canvasRootServer: CanvasRootServer
     get() = canvasRoot as? CanvasRootServer ?: error("Tried to access server canvas from client context")
-
-  override fun pollDirty(): Boolean {
-    val value = dirty
-    dirty = false
-    return value
-  }
-
-  override fun setDirty() {
-    dirty = true
-  }
 
   /**
    * Read the initial data for this object.

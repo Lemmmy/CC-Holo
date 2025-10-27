@@ -11,8 +11,8 @@ data class C2SCanvasCaptureScrollPacket(
   val direction: Int = 0,
   val x: Double = 0.0,
   val y: Double = 0.0,
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeInt(direction)
     buf.writeDouble(x)

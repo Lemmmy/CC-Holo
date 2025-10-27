@@ -11,8 +11,8 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.joml.Matrix4f
 import sh.lem.ccholo.CCHolo
-import sh.lem.ccholo.canvas.CanvasRoot.Companion.HEIGHT
-import sh.lem.ccholo.canvas.CanvasRoot.Companion.WIDTH
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_HEIGHT
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_WIDTH
 import sh.lem.ccholo.canvas.CanvasRootClient
 import sh.lem.ccholo.objects.object3d.ObjectFrame3d
 import sh.lem.ccholo.objects.renderers.BaseObjectRenderer
@@ -20,8 +20,8 @@ import sh.lem.ccholo.objects.renderers.BaseObjectRenderer
 @SideOnly(Side.CLIENT)
 object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
   val framebuffer by lazy {
-    CCHolo.log.debug("Creating ObjectFrame3d framebuffer with size $WIDTH x $HEIGHT")
-    TextureTarget(WIDTH, HEIGHT, true, true)
+    CCHolo.log.debug("Creating ObjectFrame3d framebuffer with size $BASE_WIDTH x $BASE_HEIGHT")
+    TextureTarget(BASE_WIDTH, BASE_HEIGHT, true, true)
   }
 
   override fun draw(
@@ -34,7 +34,7 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       val children = canvasRootClient.getChildren(id) ?: return
 
       val mc = Minecraft.getInstance()
-      val w = WIDTH.toFloat(); val h = HEIGHT.toFloat()
+      val w = BASE_WIDTH.toFloat(); val h = BASE_HEIGHT.toFloat()
 
       // val oldBuffer = GlStateManager.getBoundFramebuffer()
       val oldFog = RenderSystem.getShaderFogEnd()

@@ -12,8 +12,8 @@ import java.util.function.Supplier
 data class C2SCanvasCapturePastePacket(
   val canvasId: Int = 0,
   val text: ByteBuffer = ByteBuffer.allocate(0),
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeVarInt(text.remaining())
     buf.writeBytes(text)

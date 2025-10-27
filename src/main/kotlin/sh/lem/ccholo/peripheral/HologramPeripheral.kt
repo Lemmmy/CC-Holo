@@ -3,7 +3,6 @@ package sh.lem.ccholo.peripheral
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
-import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.peripheral.IComputerAccess
 import dan200.computercraft.api.peripheral.IPeripheral
 import net.minecraft.server.level.ServerPlayer
@@ -13,7 +12,7 @@ import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRootServer
 import sh.lem.ccholo.networking.S2CCanvasOpenLinkPacket
 import sh.lem.ccholo.networking.S2CCanvasSetClipboardPacket
-import sh.lem.ccholo.objects.object2d.Frame2d
+import sh.lem.ccholo.objects.object2d.RootFrame2d
 import sh.lem.ccholo.objects.object3d.WrappedOrigin3d
 import sh.lem.ccholo.util.*
 import java.util.*
@@ -46,15 +45,15 @@ class HologramPeripheral(
       ?: throw LuaException("Player '$nameOrUuid' not found")
 
     val root = CanvasHandlerServer.getRootForPlayer(player)
-
+    root.addListener(this)
     return Pair(player, root)
   }
 
   /**
-   * function(player:string):Frame2d -- Gets the 2D canvas methods for a player.
+   * function(player:string):RootFrame2d -- Gets the 2D canvas methods for a player.
    */
   @LuaFunction(unsafe = true)
-  fun getCanvas2d(playerName: String): Frame2d {
+  fun getCanvas2d(playerName: String): RootFrame2d {
     val (_, root) = getPlayerCanvasRoot(playerName)
     return root.canvas2d
   }
@@ -73,9 +72,8 @@ class HologramPeripheral(
    * function() -- Clear all canvases in the server
    */
   @LuaFunction(unsafe = true)
-  fun clearAllCanvasesGlobally(): MethodResult {
-    CanvasHandlerServer.removeAllRoots()
-    return MethodResult.of(true)
+  fun clearAllCanvasesGlobally() {
+    CanvasHandlerServer.clearAllRoots()
   }
 
   /**
@@ -89,20 +87,18 @@ class HologramPeripheral(
     playerName: String,
     includeMouseMove: Optional<Boolean>,
     hideMouse: Optional<Boolean>
-  ): MethodResult {
+  ) {
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.startCapture(this, player, includeMouseMove.orElse(false), hideMouse.orElse(false))
-    return MethodResult.of(true)
+    root.startCapture(player, includeMouseMove.orElse(false), hideMouse.orElse(false))
   }
 
   /**
    * function(player:string) -- Stops capturing all mouse and keyboard inputs for a player.
    */
   @LuaFunction(unsafe = true)
-  fun stopCapture(playerName: String): MethodResult {
+  fun stopCapture(playerName: String) {
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.stopCapture(this, player, true)
-    return MethodResult.of(true)
+    root.stopCapture(player, true)
   }
 
   /**
@@ -110,58 +106,53 @@ class HologramPeripheral(
    *   gameplay.
    */
   @LuaFunction(unsafe = true)
-  fun startKeyCapture(playerName: String, keyCode: Int): MethodResult {
+  fun startKeyCapture(playerName: String, keyCode: Int) {
     assertIntBetweenImpl(keyCode, 0, MAX_KEY_CODE, "key code out of bounds (%s)")
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.startKeyCapture(this, player, keyCode)
-    return MethodResult.of(true)
+    root.startKeyCapture(player, keyCode)
   }
 
   /**
    * function(player:string, keyCode:number) -- Stops capturing a specific keyboard input for a player.
    */
   @LuaFunction(unsafe = true)
-  fun stopKeyCapture(playerName: String, keyCode: Int): MethodResult {
+  fun stopKeyCapture(playerName: String, keyCode: Int) {
     assertIntBetweenImpl(keyCode, 0, MAX_KEY_CODE, "key code out of bounds (%s)")
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.stopKeyCapture(this, player, keyCode)
-    return MethodResult.of(true)
+    root.stopKeyCapture(player, keyCode)
   }
 
   /**
    * function(player:string) -- Clear all key captures for a player (does not stop capture mode).
    */
   @LuaFunction(unsafe = true)
-  fun clearKeyCaptures(playerName: String): MethodResult {
+  fun clearKeyCaptures(playerName: String) {
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.clearKeyCaptures(this, player)
-    return MethodResult.of(true)
+    root.clearKeyCaptures(player)
   }
 
   /**
    * function(player:string, clipboard:string) -- Sets the clipboard for a player.
    */
   @LuaFunction(unsafe = true)
-  fun setClipboard(args: IArguments): MethodResult {
+  fun setClipboard(args: IArguments) {
     val playerName = args.getString(0)
     val clipboard = args.assertUtf8StringLength(1, 1, S2CCanvasSetClipboardPacket.PASTE_LIMIT)
 
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.setClipboard(this, player, clipboard)
-    return MethodResult.of(true)
+    root.setClipboard(player, clipboard)
   }
 
   /**
    * function(player:string, url:string) -- Prompts a player to open the given URL.
    */
   @LuaFunction(unsafe = true)
-  fun openLink(args: IArguments): MethodResult {
+  fun openLink(args: IArguments) {
     val playerName = args.getString(0)
     val url = args.assertUtf8StringLength(1, 1, S2CCanvasOpenLinkPacket.URL_LIMIT)
 
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.openLink(this, player, url)
-    return MethodResult.of(true)
+    root.openLink(player, url)
   }
 
   override fun attach(computer: IComputerAccess) {

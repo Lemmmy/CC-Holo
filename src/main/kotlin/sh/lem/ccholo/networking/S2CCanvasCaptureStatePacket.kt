@@ -16,8 +16,8 @@ data class S2CCanvasCaptureStatePacket(
   val capturingMouseMove: Boolean,
   val hidingMouse: Boolean,
   val keyCaptures: IntSet
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeBoolean(capturing)
     buf.writeBoolean(capturingMouseMove)

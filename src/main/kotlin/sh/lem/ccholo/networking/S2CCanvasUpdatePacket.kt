@@ -14,8 +14,8 @@ data class S2CCanvasUpdatePacket(
   val canvasId: Int = 0,
   var changed: MutableList<BaseObject> = mutableListOf(),
   var removed: IntArray = IntArray(0),
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeCollection(changed, ObjectRegistry::write)
     buf.writeVarIntArray(removed)

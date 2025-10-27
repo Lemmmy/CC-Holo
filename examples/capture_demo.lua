@@ -63,6 +63,10 @@ print("Press J to open a link")
 -- `hologram_capture_stop`
 --   Fired when capture mode is stopped for a player.
 --   Parameters: player:string, uuid:string, reason:string
+-- `hologram_screen_size`
+--   Fired when a player's screen size changes.
+--   Parameters: player:string, uuid:string, screen_width:number, screen_height:number, gui_scaled_width:number,
+--               gui_scaled_height:number, gui_scale:number
 
 while true do
   local data = {os.pullEvent()}

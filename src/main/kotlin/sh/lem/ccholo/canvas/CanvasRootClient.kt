@@ -1,54 +1,45 @@
 package sh.lem.ccholo.canvas
 
-import it.unimi.dsi.fastutil.ints.*
+import it.unimi.dsi.fastutil.ints.IntAVLTreeSet
 import it.unimi.dsi.fastutil.ints.IntIterator
+import it.unimi.dsi.fastutil.ints.IntSet
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import sh.lem.ccholo.CCHolo
+import sh.lem.ccholo.networking.C2SCanvasScreenSizePacket
 import sh.lem.ccholo.networking.C2SCanvasStopCapturePacket
-import sh.lem.ccholo.networking.CCHoloPacketHandler
+import sh.lem.ccholo.networking.send
 import sh.lem.ccholo.objects.BaseObject
 import sh.lem.ccholo.objects.ObjectGroup
 import sh.lem.ccholo.objects.renderers.ObjectRendererRegistry
 
 object CanvasRootClient : CanvasRoot() {
-  private val objects: Int2ObjectMap<BaseObject?> = Int2ObjectOpenHashMap()
-  private val childrenOf: Int2ObjectMap<IntSortedSet> = Int2ObjectOpenHashMap()
-
   var capturePendingOpen = false
 
-  init {
-    initialise()
-  }
+  private val mc by lazy { Minecraft.getInstance() }
 
-  fun initialise() {
-    objects.clear()
-    childrenOf.clear()
-    childrenOf.put(ID_2D, IntAVLTreeSet())
-    childrenOf.put(ID_3D, IntAVLTreeSet())
+  override fun makeChildSet() = IntAVLTreeSet()
 
-    capturing = false
-    capturingMouseMove = false
-    capturePendingOpen = false
-    hidingMouse = false
+  override fun reset() {
+    super.reset()
 
-    keyCaptures.clear()
+    updateScreenSize()
 
-    if (Minecraft.getInstance().screen is CanvasCapturingScreen) {
-      Minecraft.getInstance().setScreen(null)
+    if (mc.screen is CanvasCapturingScreen) {
+      mc.setScreen(null)
     }
   }
 
-  fun clientStopCapturing() {
-    Minecraft.getInstance().setScreen(null)
-    CCHoloPacketHandler.channel.sendToServer(C2SCanvasStopCapturePacket())
+  internal fun clientStopCapturing() {
+    mc.setScreen(null)
+    C2SCanvasStopCapturePacket().send()
     capturing = false
   }
 
-  fun updateCaptureState(
+  internal fun updateCaptureState(
     capturing: Boolean,
     capturingMouseMove: Boolean,
     hidingMouse: Boolean,
@@ -61,6 +52,25 @@ object CanvasRootClient : CanvasRoot() {
 
     this.keyCaptures.clear()
     this.keyCaptures.addAll(keyCaptures)
+  }
+
+  internal fun updateScreenSize() {
+    screenWidth = mc.window.screenWidth
+    screenHeight = mc.window.screenHeight
+    guiScaledWidth = mc.window.guiScaledWidth
+    guiScaledHeight = mc.window.guiScaledHeight
+    guiScale = mc.window.guiScale
+  }
+
+  internal fun sendScreenSizePacket() {
+    try {
+      C2SCanvasScreenSizePacket(
+        canvasId = 0,
+        screenWidth, screenHeight, guiScaledWidth, guiScaledHeight, guiScale
+      ).send()
+    } catch (e: Exception) {
+      CCHolo.log.error("Error while sending screen size packet", e)
+    }
   }
 
   fun updateObject(obj: BaseObject) {

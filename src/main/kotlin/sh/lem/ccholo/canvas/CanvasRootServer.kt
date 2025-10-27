@@ -1,17 +1,14 @@
 package sh.lem.ccholo.canvas
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.minecraft.server.level.ServerPlayer
-import net.minecraftforge.network.PacketDistributor
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.objects.BaseObject
 import sh.lem.ccholo.objects.ObjectGroup
-import sh.lem.ccholo.objects.object2d.Frame2d
+import sh.lem.ccholo.objects.object2d.RootFrame2d
 import sh.lem.ccholo.objects.object3d.Origin3d
 import sh.lem.ccholo.peripheral.HologramEvents.EVENT_CAPTURE_STOP
 import sh.lem.ccholo.peripheral.HologramPeripheral
@@ -20,16 +17,12 @@ import java.util.concurrent.atomic.AtomicInteger
 class CanvasRootServer: CanvasRoot() {
   private val rootId: Int = CanvasHandlerServer.nextId()
 
-  private val objects: Int2ObjectMap<BaseObject> = Int2ObjectOpenHashMap()
-  private val childrenOf: Int2ObjectMap<IntSet> = Int2ObjectOpenHashMap()
-
   private val removed: IntSet = IntOpenHashSet()
+  private val lastId = AtomicInteger(ID_3D)
 
   private val listeners = ObjectOpenHashSet<HologramPeripheral>()
 
-  private val lastId = AtomicInteger(ID_3D)
-
-  val canvas2d = object: Frame2d {
+  val canvas2d = object: RootFrame2d {
     override val id = ID_2D
     override val canvasRoot = this@CanvasRootServer
   }
@@ -39,12 +32,8 @@ class CanvasRootServer: CanvasRoot() {
     override val canvasRoot = this@CanvasRootServer
   }
 
-  init {
-    childrenOf.put(ID_2D, IntOpenHashSet())
-    childrenOf.put(ID_3D, IntOpenHashSet())
-  }
-
   fun newObjectId() = lastId.incrementAndGet()
+  override fun makeChildSet() = IntOpenHashSet()
 
   @Synchronized
   fun makeInitPacket(): S2CCanvasInitPacket? = try {
@@ -60,9 +49,6 @@ class CanvasRootServer: CanvasRoot() {
     CCHolo.log.error("Error while making add packet. Object list was abandoned", e)
     null
   }
-
-  @Synchronized
-  fun makeRemovePacket(): S2CCanvasRemovePacket = S2CCanvasRemovePacket(rootId)
 
   @Synchronized
   fun makeUpdatePacket(): S2CCanvasUpdatePacket? {
@@ -92,17 +78,14 @@ class CanvasRootServer: CanvasRoot() {
   }
 
   @Synchronized
-  private fun makeCaptureStatePacket(): S2CCanvasCaptureStatePacket =
+  private fun sendCaptureStatePacket(player: ServerPlayer) {
     S2CCanvasCaptureStatePacket(
       canvasId = rootId,
       capturing = capturing,
       capturingMouseMove = capturingMouseMove,
       hidingMouse = hidingMouse,
       keyCaptures = keyCaptures
-    )
-
-  private fun sendCaptureStatePacket(player: ServerPlayer) {
-    CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { player }, makeCaptureStatePacket())
+    ).send(player)
   }
 
   @Synchronized
@@ -126,13 +109,10 @@ class CanvasRootServer: CanvasRoot() {
 
   @Synchronized
   fun startCapture(
-    peripheral: HologramPeripheral?,
     player: ServerPlayer,
     includeMouseMove: Boolean,
     hideMouse: Boolean
   ) {
-    peripheral?.let { listeners.add(it) }
-
     if (capturing) queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     capturing = true
     capturingMouseMove = includeMouseMove
@@ -141,9 +121,7 @@ class CanvasRootServer: CanvasRoot() {
   }
 
   @Synchronized
-  fun stopCapture(peripheral: HologramPeripheral?, player: ServerPlayer, sendPacket: Boolean) {
-    peripheral?.let { listeners.add(it) }
-
+  fun stopCapture(player: ServerPlayer, sendPacket: Boolean) {
     if (!capturing) return
     capturing = false
     capturingMouseMove = false
@@ -153,45 +131,31 @@ class CanvasRootServer: CanvasRoot() {
   }
 
   @Synchronized
-  fun startKeyCapture(peripheral: HologramPeripheral?, player: ServerPlayer, keyCode: Int) {
-    peripheral?.let { listeners.add(it) }
-
+  fun startKeyCapture(player: ServerPlayer, keyCode: Int) {
     keyCaptures.add(keyCode)
     sendCaptureStatePacket(player)
   }
 
   @Synchronized
-  fun stopKeyCapture(peripheral: HologramPeripheral?, player: ServerPlayer, keyCode: Int) {
-    peripheral?.let { listeners.add(it) }
-
+  fun stopKeyCapture(player: ServerPlayer, keyCode: Int) {
     keyCaptures.remove(keyCode)
     sendCaptureStatePacket(player)
   }
 
   @Synchronized
-  fun clearKeyCaptures(peripheral: HologramPeripheral?, player: ServerPlayer) {
-    peripheral?.let { listeners.add(it) }
-
+  fun clearKeyCaptures(player: ServerPlayer) {
     keyCaptures.clear()
     sendCaptureStatePacket(player)
   }
 
   @Synchronized
-  fun setClipboard(peripheral: HologramPeripheral?, player: ServerPlayer, text: String) {
-    peripheral?.let { listeners.add(it) }
-
-    CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { player }, S2CCanvasSetClipboardPacket(
-      text = text
-    ))
+  fun setClipboard(player: ServerPlayer, text: String) {
+    S2CCanvasSetClipboardPacket(text = text).send(player)
   }
 
   @Synchronized
-  fun openLink(peripheral: HologramPeripheral?, player: ServerPlayer, url: String) {
-    peripheral?.let { listeners.add(it) }
-
-    CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { player }, S2CCanvasOpenLinkPacket(
-      url = url
-    ))
+  fun openLink(player: ServerPlayer, url: String) {
+    S2CCanvasOpenLinkPacket(url = url).send(player)
   }
 
   fun queueEvent(event: String, vararg args: Any) {
@@ -202,6 +166,10 @@ class CanvasRootServer: CanvasRoot() {
 
   fun queuePlayerEvent(event: String, player: ServerPlayer, vararg args: Any) {
     queueEvent(event, player.gameProfile.name, player.gameProfile.id.toString(), *args)
+  }
+
+  internal fun addListener(peripheral: HologramPeripheral) {
+    listeners.add(peripheral)
   }
 
   internal fun removeListener(peripheral: HologramPeripheral) {

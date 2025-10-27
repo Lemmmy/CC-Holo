@@ -30,7 +30,7 @@ object CanvasHandlerClient {
     CCHolo.log.debug("Received canvas init packet for canvas ${msg.canvasId} with ${msg.objects.size} objects")
 
     val root = CanvasRootClient
-    root.initialise()
+    root.reset()
     msg.objects.onEach(root::updateObject)
     root.updateCaptureState(
       capturing = msg.capturing,
@@ -38,12 +38,6 @@ object CanvasHandlerClient {
       hidingMouse = msg.hidingMouse,
       keyCaptures = msg.keyCaptures
     )
-  }
-
-  internal fun onCanvasRemovePacket(msg: S2CCanvasRemovePacket) {
-    if (!checkMainThread("S2CCanvasRemovePacket")) return
-
-    CanvasRootClient.initialise()
   }
 
   internal fun onCanvasUpdatePacket(msg: S2CCanvasUpdatePacket) {
@@ -96,7 +90,8 @@ object CanvasHandlerClient {
   fun onLogIn(event: ClientPlayerNetworkEvent.LoggingIn) {
     // Set up a fresh canvas root when joining a world, before any canvas packets arrive from the server
     CCHolo.log.debug("Logging in, initialising canvas root")
-    CanvasRootClient.initialise()
+    CanvasRootClient.reset()
+    CanvasRootClient.sendScreenSizePacket()
   }
 
   @SubscribeEvent
@@ -104,6 +99,6 @@ object CanvasHandlerClient {
     // Just in case, clear the canvas root when leaving a server too, since there's no need to keep old objects around
     // in memory after leaving
     CCHolo.log.debug("Logging out, clearing canvas root")
-    CanvasRootClient.initialise()
+    CanvasRootClient.reset()
   }
 }

@@ -9,8 +9,8 @@ import java.util.function.Supplier
 data class C2SCanvasCaptureCharPacket(
   val canvasId: Int = 0,
   val char: Int = 0
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeInt(char)
   }

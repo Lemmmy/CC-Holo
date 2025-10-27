@@ -13,8 +13,8 @@ data class C2SCanvasCaptureKeyPacket(
   val repeat: Boolean = false,
   val down: Boolean = true,
   val captureMode: Boolean = false,
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeInt(key)
     buf.writeBoolean(repeat)

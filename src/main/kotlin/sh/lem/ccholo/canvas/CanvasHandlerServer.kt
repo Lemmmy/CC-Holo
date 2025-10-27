@@ -3,14 +3,14 @@ package sh.lem.ccholo.canvas
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
+import net.minecraftforge.event.server.ServerAboutToStartEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import net.minecraftforge.network.PacketDistributor
 import net.minecraftforge.server.ServerLifecycleHooks
 import sh.lem.ccholo.CCHolo
-import sh.lem.ccholo.networking.CCHoloPacketHandler
+import sh.lem.ccholo.networking.send
 import sh.lem.ccholo.peripheral.HologramPeripheral
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -34,14 +34,23 @@ object CanvasHandlerServer {
     = roots.getOrPut(p.gameProfile.id) {
       CCHolo.log.debug("Creating new canvas root for player {} ({})", p.gameProfile.name, p.gameProfile.id)
 
-      // Create a new canvas root
+      // Create & return a new canvas root
       CanvasRootServer().also {
+        it.reset()
         // Send the init packet to the player
-        it.makeInitPacket()?.let {
-          pkt -> CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { p }, pkt)
-        }
+        it.makeInitPacket()?.send(p)
       }
     }
+
+  /// When the server starts, clear all canvas roots. This is mainly to clear roots on singleplayer when the player
+  // starts/switches worlds
+  @SubscribeEvent
+  @SideOnly(Side.SERVER)
+  fun onServerStarting(event: ServerAboutToStartEvent) {
+    CCHolo.log.debug("Clearing canvas roots map")
+    roots.clear()
+    lastId.set(0)
+  }
 
   /// When a player logs in, send them their existing canvas root if they have one
   @SubscribeEvent
@@ -51,9 +60,7 @@ object CanvasHandlerServer {
     val root = roots[p.gameProfile.id] ?: return
 
     CCHolo.log.debug("Player {} ({}) logged in, sending canvas init packet", p.gameProfile.name, p.gameProfile.id)
-    root.makeInitPacket()?.let {
-      pkt -> CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { p }, pkt)
-    }
+    root.makeInitPacket()?.send(p)
   }
 
   /**
@@ -65,30 +72,24 @@ object CanvasHandlerServer {
   fun update(event: TickEvent.ServerTickEvent) {
     ServerLifecycleHooks.getCurrentServer().playerList.players.forEach { p ->
       val root = roots[p.gameProfile.id] ?: return@forEach
-
-      // Send the update packet. Returns null if there are no changes to send
-      root.makeUpdatePacket()?.let {
-        pkt -> CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { p }, pkt)
-      }
+      root.makeUpdatePacket()?.send(p) // Send the update packet. Returns null if there are no changes to send
     }
   }
 
-  /// Clear all canvas roots and send removal packets to players if they are online. Must be run on the server thread.
+  /// Clear all canvas roots and send re-initialisation packets to players if they are online to clear all objects. Must
+  // be run on the server thread.
   @SideOnly(Side.SERVER)
-  fun removeAllRoots() {
-    CCHolo.log.debug("Removing all canvas roots")
+  fun clearAllRoots() {
+    CCHolo.log.debug("Resetting all canvas roots")
 
     // Send removal packets to all players with active roots
     roots.forEach { (uuid, root) ->
+      root.reset()
+
       val p = ServerLifecycleHooks.getCurrentServer().playerList.getPlayer(uuid) ?: return@forEach
       CCHolo.log.debug("Sending canvas removal packet to player {} ({})", p.gameProfile.name, p.gameProfile.id)
-
-      val pkt = root.makeRemovePacket()
-      CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { p }, pkt)
+      root.makeInitPacket()?.send(p)
     }
-
-    // Clear the roots map
-    roots.clear()
   }
 
   /// Clear the given listener from all canvas roots

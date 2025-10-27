@@ -5,8 +5,8 @@ import net.minecraftforge.network.NetworkEvent
 import sh.lem.ccholo.canvas.CanvasHandlerServer
 import java.util.function.Supplier
 
-data class C2SCanvasStopCapturePacket(val canvasId: Int = 0) {
-  fun encode(buf: FriendlyByteBuf) {
+data class C2SCanvasStopCapturePacket(val canvasId: Int = 0): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
   }
 
@@ -21,7 +21,7 @@ data class C2SCanvasStopCapturePacket(val canvasId: Int = 0) {
         val player = c.sender ?: return@enqueueWork
 
         val root = CanvasHandlerServer.getRootForPlayer(player)
-        root.stopCapture(null, player, false)
+        root.stopCapture(player, false)
       }
       c.packetHandled = true
     }

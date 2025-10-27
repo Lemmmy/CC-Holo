@@ -60,4 +60,11 @@ object HologramEvents {
    * Parameters: player:string, uuid:string, reason:string
    */
   const val EVENT_CAPTURE_STOP = "hologram_capture_stop"
+
+  /**
+   * Event fired when a player's screen size changes.
+   * Parameters: player:string, uuid:string, screenWidth:number, screenHeight:number, guiScaledWidth:number,
+   * guiScaledHeight:number, guiScale:number
+   */
+  const val EVENT_SCREEN_SIZE = "hologram_screen_size"
 }

@@ -90,9 +90,17 @@ frame3d.addRectangle(0, 0, 16, 16, 0xFF0000FF)
 -- Per-player root for all 2D objects. Calling this twice will give you the same root (though it will be a different Lua
 -- object). You can keep this reference around even if the player rejoins the server, as it will be persisted for as
 -- long as the server is running.
--- The 2D canvas is a fixed 512x288 (16:9) canvas that's stretched to fill the player's screen.
 local canvas2d = hologram.getCanvas2d(username)
+
+-- Get the size of the player's screen, the gui scaled size (the size used for the frame), and their gui scale. A
+-- `hologram_screen_size` event will be fired with these same values if the player's screen size changes.
+local screenWidth, screenHeight, guiScaledWidth, guiScaledHeight, guiScale = canvas2d.getScreenSize()
+
+-- The root 2D canvas is the size of the player's (gui scaled) screen. canvasW and canvasH should equal guiScaledWidth
+-- and guiScaledHeight.
 local canvasW, canvasH = canvas2d.getSize()
+
+-- Clear the canvas:
 -- canvas2d.clear()
 
 -- Rectangle2d

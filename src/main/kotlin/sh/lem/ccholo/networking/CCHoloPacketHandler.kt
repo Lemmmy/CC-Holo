@@ -27,12 +27,6 @@ object CCHoloPacketHandler {
       .consumerMainThread(S2CCanvasInitPacket::handle)
       .add()
 
-    channel.messageBuilder(S2CCanvasRemovePacket::class.java, id++, PLAY_TO_CLIENT)
-      .encoder(S2CCanvasRemovePacket::encode)
-      .decoder(S2CCanvasRemovePacket::decode)
-      .consumerMainThread(S2CCanvasRemovePacket::handle)
-      .add()
-
     channel.messageBuilder(S2CCanvasUpdatePacket::class.java, id++, PLAY_TO_CLIENT)
       .encoder(S2CCanvasUpdatePacket::encode)
       .decoder(S2CCanvasUpdatePacket::decode)
@@ -92,6 +86,12 @@ object CCHoloPacketHandler {
       .encoder(C2SCanvasCaptureScrollPacket::encode)
       .decoder(C2SCanvasCaptureScrollPacket::decode)
       .consumerMainThread(C2SCanvasCaptureScrollPacket::handle)
+      .add()
+
+    channel.messageBuilder(C2SCanvasScreenSizePacket::class.java, id++, PLAY_TO_SERVER)
+      .encoder(C2SCanvasScreenSizePacket::encode)
+      .decoder(C2SCanvasScreenSizePacket::decode)
+      .consumerMainThread(C2SCanvasScreenSizePacket::handle)
       .add()
   }
 

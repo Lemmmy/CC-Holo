@@ -10,8 +10,8 @@ import java.util.function.Supplier
 
 data class S2CCanvasOpenLinkPacket(
   val url: String
-) {
-  fun encode(buf: FriendlyByteBuf) {
+): CCHoloPacket {
+  override fun encode(buf: FriendlyByteBuf) {
     buf.writeUtf(url)
   }
 
