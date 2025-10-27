@@ -13,3 +13,13 @@ fun BlockPos?.toResult(): MethodResult =
   this?.let { MethodResult.of(it.x, it.y, it.z) } ?: MethodResult.of()
 
 fun Vec2.perp(): Vec2 = Vec2(-y, x)
+
+operator fun Vec2.plus(other: Vec2): Vec2 = add(other)
+
+operator fun Vec2.minus(other: Vec2): Vec2 = Vec2(x - other.x, y - other.y)
+
+operator fun Vec2.unaryMinus(): Vec2 = negated()
+
+operator fun Vec2.times(scalar: Float): Vec2 = scale(scalar)
+
+operator fun Vec2.times(other: Vec2): Vec2 = Vec2(x * other.x, y * other.y)

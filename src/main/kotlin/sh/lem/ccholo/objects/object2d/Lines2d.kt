@@ -12,12 +12,7 @@ import sh.lem.ccholo.objects.LinesObject.Companion.DEFAULT_ROUND_SEGMENTS_MAX
 import sh.lem.ccholo.objects.LinesObject.Companion.DEFAULT_ROUND_SEGMENTS_MIN
 import sh.lem.ccholo.objects.ObjectRegistry.LINES_2D
 import sh.lem.ccholo.objects.Scalable
-import sh.lem.ccholo.util.DirtyingProperty
-import sh.lem.ccholo.util.perp
-import thedarkcolour.kotlinforforge.forge.vectorutil.v2d.minus
-import thedarkcolour.kotlinforforge.forge.vectorutil.v2d.plus
-import thedarkcolour.kotlinforforge.forge.vectorutil.v2d.times
-import thedarkcolour.kotlinforforge.forge.vectorutil.v2d.unaryMinus
+import sh.lem.ccholo.util.*
 import kotlin.math.*
 
 class Lines2d(

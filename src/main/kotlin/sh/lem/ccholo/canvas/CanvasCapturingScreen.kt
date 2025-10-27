@@ -5,8 +5,8 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
-import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.CCHolo.MOD_ID
+import sh.lem.ccholo.CCHoloClient
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.HEIGHT
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.WIDTH
@@ -22,7 +22,7 @@ private const val MOVE_INTERVAL_MS = 50
 
 class CanvasCapturingScreen: Screen(Component.translatable(
   "gui.${MOD_ID}.canvas.capturing.title",
-  CCHolo.KeyBindings.CAPTURE_CLOSE.get().translatedKeyMessage
+  CCHoloClient.KeyBindings.CAPTURE_CLOSE.get().translatedKeyMessage
 )) {
   // Tracked to clear the inputs when the window is unfocused
   private var lastMouseButton = -1

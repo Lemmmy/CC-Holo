@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.network.NetworkEvent
 import sh.lem.ccholo.canvas.CanvasHandlerClient
+import sh.lem.ccholo.networking.CCHoloPacketHandler.wrapPacketHandler
 import sh.lem.ccholo.objects.BaseObject
 import sh.lem.ccholo.objects.ObjectRegistry
 import java.util.function.Supplier
@@ -48,7 +49,7 @@ data class S2CCanvasUpdatePacket(
       removed = buf.readVarIntArray(),
     )
 
-    fun handle(msg: S2CCanvasUpdatePacket, ctx: Supplier<NetworkEvent.Context>) {
+    fun handle(msg: S2CCanvasUpdatePacket, ctx: Supplier<NetworkEvent.Context>) = wrapPacketHandler {
       val c = ctx.get()
       c.enqueueWork {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT) { Runnable {

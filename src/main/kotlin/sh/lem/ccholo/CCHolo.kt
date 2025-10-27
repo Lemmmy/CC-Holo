@@ -1,24 +1,20 @@
 package sh.lem.ccholo
 
-import com.mojang.blaze3d.platform.InputConstants
-import net.minecraft.client.KeyMapping
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.GameMasterBlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent
-import net.minecraftforge.client.settings.KeyConflictContext
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.util.Lazy
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.registries.DeferredRegister
 import net.minecraftforge.registries.ForgeRegistries
-import org.lwjgl.glfw.GLFW
 import org.slf4j.LoggerFactory
 import sh.lem.ccholo.CCHolo.Items.HOLOGRAM_BLOCK_ITEM
 import sh.lem.ccholo.networking.CCHoloPacketHandler
@@ -83,22 +79,6 @@ object CCHolo {
     }
   }
 
-  object KeyBindings {
-    internal val CAPTURE_CLOSE: Lazy<KeyMapping> = Lazy.of {
-      KeyMapping(
-        "key.${MOD_ID}.capture_close",
-        KeyConflictContext.GUI,
-        InputConstants.Type.KEYSYM,
-        GLFW.GLFW_KEY_ESCAPE,
-        "key.categories.gameplay"
-      )
-    }
-
-    fun onRegisterKeyMappings(event: RegisterKeyMappingsEvent) {
-      event.register(CAPTURE_CLOSE.get())
-    }
-  }
-
   init {
     // Registries
     Blocks.REGISTRY.register(MOD_BUS)
@@ -108,9 +88,10 @@ object CCHolo {
     // Event listeners
     MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity::class.java, Peripherals::onAttachCapabilities)
     MOD_BUS.addListener(CreativeTabs::onCreativeTabBuildContents)
-    MOD_BUS.addListener(KeyBindings::onRegisterKeyMappings)
 
     // Networking
     CCHoloPacketHandler.setup()
+
+    DistExecutor.unsafeRunWhenOn(Dist.CLIENT) { Runnable { CCHoloClient.init() } }
   }
 }

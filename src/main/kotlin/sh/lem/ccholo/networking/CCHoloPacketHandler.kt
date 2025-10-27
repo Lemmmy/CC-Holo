@@ -88,4 +88,14 @@ object CCHoloPacketHandler {
       .consumerMainThread(C2SCanvasCaptureScrollPacket::handle)
       .add()
   }
+
+  inline fun wrapPacketHandler(body: () -> Unit) = try {
+    body()
+  } catch (e: Exception) {
+    CCHolo.log.error("Error while handling packet", e)
+  } catch (e: LinkageError) {
+    CCHolo.log.error("Critical error while handling packet (LinkageError)", e)
+  } catch (e: VirtualMachineError) {
+    CCHolo.log.error("Critical error while handling packet (VirtualMachineError)", e)
+  }
 }

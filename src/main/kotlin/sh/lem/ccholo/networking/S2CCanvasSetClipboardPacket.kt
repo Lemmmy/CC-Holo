@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.network.NetworkEvent
 import sh.lem.ccholo.canvas.CanvasHandlerClient
+import sh.lem.ccholo.networking.CCHoloPacketHandler.wrapPacketHandler
 import java.util.function.Supplier
 
 data class S2CCanvasSetClipboardPacket(
@@ -21,7 +22,7 @@ data class S2CCanvasSetClipboardPacket(
       text = buf.readUtf(PASTE_LIMIT)
     )
 
-    fun handle(msg: S2CCanvasSetClipboardPacket, ctx: Supplier<NetworkEvent.Context>) {
+    fun handle(msg: S2CCanvasSetClipboardPacket, ctx: Supplier<NetworkEvent.Context>) = wrapPacketHandler {
       val c = ctx.get()
       c.enqueueWork {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT) { Runnable {
