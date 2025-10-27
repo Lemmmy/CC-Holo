@@ -46,7 +46,7 @@ data class C2SCanvasCapturePastePacket(
 
         val root = CanvasHandlerServer.getRootForPlayer(player)
         if (msg.text.remaining() > 0 && isValidClipboard(msg.text)) {
-          root.queuePlayerEvent(EVENT_PASTE, player, msg.text)
+          root.queuePlayerEvent(EVENT_PASTE, player, Charsets.UTF_8.decode(msg.text).toString())
         }
       }
       c.packetHandled = true

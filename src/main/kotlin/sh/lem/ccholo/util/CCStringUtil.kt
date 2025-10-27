@@ -5,7 +5,10 @@
  * This code is vendored here to reduce dependency on CC: Tweaked's core API, but more importantly, to allow
  * compatibility with CC: Tweaked 1.113.1.
  *
- * Modifications made for Kotlin porting, and only including the methods required by CC-Holo.
+ * Modifications:
+ * - Ported to kotlin
+ * - Only included methods required by CC-Holo
+ * - Allowed newlines in pastes, and convert CRLF to LF
  */
 package sh.lem.ccholo.util
 
@@ -82,7 +85,7 @@ object CCStringUtil {
    * @author SquidDev
    * @see <https://github.com/cc-tweaked/CC-Tweaked/blob/b9ed669/projects/core/src/main/java/dan200/computercraft/core/util/StringUtil.java#L84C1-L93C6>
    */
-  fun isTypableChar(chr: Int): Boolean = chr in 0..255 && chr != 0 && chr != '\r'.code && chr != '\n'.code
+  fun isTypableChar(chr: Int): Boolean = chr in 0..255 && chr != 0
 
   /**
    * Convert a Java string to a Lua one (using the terminal charset), suitable for pasting into a computer.
@@ -99,13 +102,46 @@ object CCStringUtil {
     var idx = 0
 
     val iterator = clipboard.codePoints().iterator()
+    var prevWasCR = false
+
     while (iterator.hasNext() && idx < output.size) {
-      val chr = unicodeToTerminal(iterator.next())
-      if (chr < 0) continue  // Strip out unconvertible characters
+      val nextCodePoint = iterator.next()
+      val chr = unicodeToTerminal(nextCodePoint)
+      if (chr < 0) continue // Strip out unconvertible characters
+
+      // If the previous character was a CR, handle CRLF normalization.
+      if (prevWasCR) {
+        if (chr == '\n'.code) {
+          // Convert CRLF to single LF.
+          if (!isTypableChar('\n'.code)) break
+          output[idx++] = '\n'.code.toByte()
+          prevWasCR = false
+          continue
+        } else {
+          // Standalone CR. Emit CR if typable and there is space, then fall through to handle current char.
+          if (isTypableChar('\r'.code)) {
+            output[idx++] = '\r'.code.toByte()
+          }
+          prevWasCR = false
+          // Note: do not continue here so current chr is also processed below.
+        }
+      }
+
+      if (chr == '\r'.code) {
+        // Defer emitting until we know if the next char is LF.
+        prevWasCR = true
+        continue
+      }
 
       if (!isTypableChar(chr)) break // Stop at untypable ones.
+      if (idx >= output.size) break
 
       output[idx++] = chr.toByte()
+    }
+
+    // If input ended with a trailing CR, emit it (not part of CRLF).
+    if (prevWasCR && idx < output.size && isTypableChar('\r'.code)) {
+      output[idx++] = '\r'.code.toByte()
     }
 
     return ByteBuffer.wrap(output, 0, idx).asReadOnlyBuffer()
