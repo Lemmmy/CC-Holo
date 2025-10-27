@@ -51,4 +51,12 @@ data class WrappedOrigin3d(
     canvasRoot.add(root)
     return root
   }
+
+  /**
+   * function() -- Remove all objects.
+   */
+  @LuaFunction
+  fun clear() {
+    origin3d.canvasRootServer.clear(origin3d)
+  }
 }
