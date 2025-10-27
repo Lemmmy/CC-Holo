@@ -13,17 +13,19 @@ import sh.lem.ccholo.objects.ObjectRegistry
 import java.util.function.Supplier
 
 data class S2CCanvasInitPacket(
-  val canvasId: Int = 0,
-  val objects: Collection<BaseObject> = emptyList(),
-  val capturing: Boolean = false,
-  val capturingMouseMove: Boolean = false,
-  val keyCaptures: IntSet = IntOpenHashSet()
+  val canvasId: Int,
+  val objects: Collection<BaseObject>,
+  val capturing: Boolean,
+  val capturingMouseMove: Boolean,
+  val hidingMouse: Boolean,
+  val keyCaptures: IntSet
 ) {
   fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeCollection(objects, ObjectRegistry::write)
     buf.writeBoolean(capturing)
     buf.writeBoolean(capturingMouseMove)
+    buf.writeBoolean(hidingMouse)
     buf.writeVarIntArray(keyCaptures.toIntArray())
   }
 
@@ -34,6 +36,7 @@ data class S2CCanvasInitPacket(
         .apply { sortWith(BaseObject.SORTING_ORDER) }, // Sort by ID to guarantee parents load before their children
       capturing = buf.readBoolean(),
       capturingMouseMove = buf.readBoolean(),
+      hidingMouse = buf.readBoolean(),
       keyCaptures = IntOpenHashSet(buf.readVarIntArray())
     )
 

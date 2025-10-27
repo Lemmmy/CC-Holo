@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFW.*
 import sh.lem.ccholo.CCHolo.MOD_ID
 import sh.lem.ccholo.CCHoloClient
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.HEIGHT
@@ -12,6 +12,7 @@ import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.WIDTH
 import sh.lem.ccholo.canvas.CanvasRootClient.capturing
 import sh.lem.ccholo.canvas.CanvasRootClient.capturingMouseMove
+import sh.lem.ccholo.canvas.CanvasRootClient.hidingMouse
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.networking.C2SCanvasCaptureMousePacket.Event
 import sh.lem.ccholo.util.CCStringUtil
@@ -21,7 +22,11 @@ private const val DRAG_INTERVAL_MS = 50
 private const val MOVE_INTERVAL_MS = 50
 
 class CanvasCapturingScreen: Screen(Component.translatable(
-  "gui.${MOD_ID}.canvas.capturing.title",
+  if (hidingMouse) {
+    "gui.${MOD_ID}.canvas.capturing.title_hidden_mouse"
+  } else {
+    "gui.${MOD_ID}.canvas.capturing.title"
+  },
   CCHoloClient.KeyBindings.CAPTURE_CLOSE.get().translatedKeyMessage
 )) {
   // Tracked to clear the inputs when the window is unfocused
@@ -38,6 +43,15 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   private var pendingMoveX = -1.0
   private var pendingMoveY = -1.0
   private var timeLastMoveSent = -1L
+
+  private val mc by lazy { Minecraft.getInstance() }
+
+  override fun init() {
+    super.init()
+
+    // added() is too early to hide the mouse, since the game releases the mouse immediately before calling init()
+    if (hidingMouse) setMouseHidden(true)
+  }
 
   override fun render(gg: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
     super.render(gg, mouseX, mouseY, partialTick)
@@ -98,7 +112,7 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   override fun keyPressed(key: Int, scanCode: Int, modifiers: Int): Boolean {
     val captured = CanvasRootClient.keyCaptures.contains(key)
 
-    if (key == GLFW.GLFW_KEY_ESCAPE) {
+    if (key == GLFW_KEY_ESCAPE) {
       CanvasRootClient.clientStopCapturing()
       return true
     } else if (capturing && isPaste(key)) {
@@ -165,6 +179,11 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     lastMouseButton = button
     lastMouseX = x
     lastMouseY = y
+
+    // Re-hide the mouse if it should be hidden
+    if (hidingMouse) {
+      setMouseHidden(true)
+    }
 
     return true
   }
@@ -256,6 +275,10 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       ))
       lastMouseButton = -1
     }
+
+    if (hidingMouse) {
+      setMouseHidden(false)
+    }
   }
 
   override fun setFocused(focused: Boolean) {
@@ -263,14 +286,19 @@ class CanvasCapturingScreen: Screen(Component.translatable(
 
     if (!focused) {
       clearInputs()
+    } else if (hidingMouse) {
+      setMouseHidden(true)
     }
   }
 
   override fun removed() {
     super.removed()
-
     clearInputs()
   }
 
   override fun isPauseScreen() = false
+
+  private fun setMouseHidden(hidden: Boolean) {
+    glfwSetInputMode(mc.window.window, GLFW_CURSOR, if (hidden) GLFW_CURSOR_HIDDEN else GLFW_CURSOR_NORMAL)
+  }
 }

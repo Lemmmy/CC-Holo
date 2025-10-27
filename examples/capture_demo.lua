@@ -18,12 +18,17 @@ hologram.clearKeyCaptures(username)
 -- Enter capture mode:
 -- hologram.startCapture(username)
 -- hologram.startCapture(username, true) -- include hologram_mouse_move events
+-- hologram.startCapture(username, true, true) -- hide the mouse cursor
 -- hologram.stopCapture(username)
 
 -- Global key capture:
 hologram.startKeyCapture(username, keys.g)
+hologram.startKeyCapture(username, keys.h)
+hologram.startKeyCapture(username, keys.j)
 -- hologram.stopKeyCapture(username, key)
 print("Press G to start capture")
+print("Press H to start capture with hidden mouse")
+print("Press J to open a link")
 
 -------------------------------------------------------------------------------
 -- EVENTS
@@ -95,9 +100,17 @@ while true do
     -- data[4] = key
     -- data[5] = repeat
     -- data[6] = capture mode (for entering capture mode, let's only focus on non-capture mode key inputs)
-    if event == "hologram_key" and data[4] == keys.g and not data[5] and not data[6] then
-      print("Starting capture")
-      hologram.startCapture(data[3], true)
+    if event == "hologram_key" and not data[5] then
+      if data[4] == keys.g and not data[6] then
+        print("Starting capture")
+        hologram.startCapture(data[3], true)
+      elseif data[4] == keys.h then
+        print("Starting capture with hidden mouse")
+        hologram.startCapture(data[3], true, true)
+      elseif data[4] == keys.j then
+        print("Opening link")
+        hologram.openLink(data[3], "https://google.com")
+      end
     end
   end
 

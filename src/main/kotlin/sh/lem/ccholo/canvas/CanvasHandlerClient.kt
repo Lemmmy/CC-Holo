@@ -35,6 +35,7 @@ object CanvasHandlerClient {
     root.updateCaptureState(
       capturing = msg.capturing,
       capturingMouseMove = msg.capturingMouseMove,
+      hidingMouse = msg.hidingMouse,
       keyCaptures = msg.keyCaptures
     )
   }
@@ -60,6 +61,7 @@ object CanvasHandlerClient {
     root.updateCaptureState(
       capturing = msg.capturing,
       capturingMouseMove = msg.capturingMouseMove,
+      hidingMouse = msg.hidingMouse,
       keyCaptures = msg.keyCaptures
     )
   }

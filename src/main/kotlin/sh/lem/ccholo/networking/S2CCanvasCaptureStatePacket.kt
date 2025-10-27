@@ -11,15 +11,17 @@ import sh.lem.ccholo.networking.CCHoloPacketHandler.wrapPacketHandler
 import java.util.function.Supplier
 
 data class S2CCanvasCaptureStatePacket(
-  val canvasId: Int = 0,
-  val capturing: Boolean = false,
-  val capturingMouseMove: Boolean = false,
-  val keyCaptures: IntSet = IntOpenHashSet()
+  val canvasId: Int,
+  val capturing: Boolean,
+  val capturingMouseMove: Boolean,
+  val hidingMouse: Boolean,
+  val keyCaptures: IntSet
 ) {
   fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
     buf.writeBoolean(capturing)
     buf.writeBoolean(capturingMouseMove)
+    buf.writeBoolean(hidingMouse)
     buf.writeVarIntArray(keyCaptures.toIntArray())
   }
 
@@ -28,6 +30,7 @@ data class S2CCanvasCaptureStatePacket(
       canvasId = buf.readInt(),
       capturing = buf.readBoolean(),
       capturingMouseMove = buf.readBoolean(),
+      hidingMouse = buf.readBoolean(),
       keyCaptures = IntOpenHashSet(buf.readVarIntArray())
     )
 

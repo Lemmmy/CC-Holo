@@ -11,7 +11,7 @@ import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 object CCHoloClient {
   object KeyBindings {
-    internal val CAPTURE_CLOSE: net.minecraftforge.common.util.Lazy<KeyMapping> = Lazy.of {
+    internal val CAPTURE_CLOSE: Lazy<KeyMapping> = Lazy.of {
       KeyMapping(
         "key.${MOD_ID}.capture_close",
         KeyConflictContext.GUI,

@@ -6,7 +6,8 @@ import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFW.GLFW_PRESS
+import org.lwjgl.glfw.GLFW.GLFW_REPEAT
 import sh.lem.ccholo.networking.C2SCanvasCaptureKeyPacket
 import sh.lem.ccholo.networking.CCHoloPacketHandler
 
@@ -29,8 +30,8 @@ object CanvasInputHandler {
     if (mc.screen == null && CanvasRootClient.keyCaptures.contains(event.key)) {
       CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
         key = event.key,
-        down = event.action == GLFW.GLFW_PRESS || event.action == GLFW.GLFW_REPEAT,
-        repeat = event.action == GLFW.GLFW_REPEAT,
+        down = event.action == GLFW_PRESS || event.action == GLFW_REPEAT,
+        repeat = event.action == GLFW_REPEAT,
         captureMode = false
       ))
     }

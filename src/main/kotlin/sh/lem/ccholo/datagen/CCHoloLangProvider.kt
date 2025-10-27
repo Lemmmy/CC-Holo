@@ -13,6 +13,7 @@ class CCHoloLangProvider(out: PackOutput) : LanguageProvider(
   override fun addTranslations() {
     addBlock(Blocks.HOLOGRAM_BLOCK, "Hologram")
     add("gui.${MOD_ID}.canvas.capturing.title", "Press %s to exit")
+    add("gui.${MOD_ID}.canvas.capturing.title_hidden_mouse", "Mouse hidden. Press %s to exit")
     add("key.${MOD_ID}.capture_close", "Press %s to exit")
   }
 }

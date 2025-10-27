@@ -53,6 +53,7 @@ class CanvasRootServer: CanvasRoot() {
       objects = objects.values,
       capturing = capturing,
       capturingMouseMove = capturingMouseMove,
+      hidingMouse = hidingMouse,
       keyCaptures = keyCaptures
     )
   } catch (e: Exception) {
@@ -96,6 +97,7 @@ class CanvasRootServer: CanvasRoot() {
       canvasId = rootId,
       capturing = capturing,
       capturingMouseMove = capturingMouseMove,
+      hidingMouse = hidingMouse,
       keyCaptures = keyCaptures
     )
 
@@ -123,12 +125,18 @@ class CanvasRootServer: CanvasRoot() {
   }
 
   @Synchronized
-  fun startCapture(peripheral: HologramPeripheral?, player: ServerPlayer, includeMouseMove: Boolean) {
+  fun startCapture(
+    peripheral: HologramPeripheral?,
+    player: ServerPlayer,
+    includeMouseMove: Boolean,
+    hideMouse: Boolean
+  ) {
     peripheral?.let { listeners.add(it) }
 
     if (capturing) queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     capturing = true
     capturingMouseMove = includeMouseMove
+    hidingMouse = hideMouse
     sendCaptureStatePacket(player)
   }
 
@@ -139,6 +147,7 @@ class CanvasRootServer: CanvasRoot() {
     if (!capturing) return
     capturing = false
     capturingMouseMove = false
+    hidingMouse = false
     queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     if (sendPacket) sendCaptureStatePacket(player)
   }

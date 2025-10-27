@@ -1,5 +1,6 @@
 {
   "block.ccholo.hologram": "Hologram",
   "gui.ccholo.canvas.capturing.title": "Press %s to exit",
+  "gui.ccholo.canvas.capturing.title_hidden_mouse": "Mouse hidden. Press %s to exit",
   "key.ccholo.capture_close": "Press %s to exit"
 }

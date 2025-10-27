@@ -79,13 +79,19 @@ class HologramPeripheral(
   }
 
   /**
-   * function(player:string, includeMouseMove:boolean) -- Starts capturing all mouse and keyboard inputs for a player.
+   * function(player:string[, includeMouseMove:boolean[, hideMouse:boolean]])
+   * -- Starts capturing all mouse and keyboard inputs for a player.
    * If `includeMouseMove` is `true`, then `hologram_mouse_move` events will also be fired.
+   * If `hideMouse` is `true`, then the mouse cursor will be hidden.
    */
   @LuaFunction(unsafe = true)
-  fun startCapture(playerName: String, includeMouseMove: Optional<Boolean>): MethodResult {
+  fun startCapture(
+    playerName: String,
+    includeMouseMove: Optional<Boolean>,
+    hideMouse: Optional<Boolean>
+  ): MethodResult {
     val (player, root) = getPlayerCanvasRoot(playerName)
-    root.startCapture(this, player, includeMouseMove.orElse(false))
+    root.startCapture(this, player, includeMouseMove.orElse(false), hideMouse.orElse(false))
     return MethodResult.of(true)
   }
 
