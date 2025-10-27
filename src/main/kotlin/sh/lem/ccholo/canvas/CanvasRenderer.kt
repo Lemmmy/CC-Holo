@@ -37,7 +37,7 @@ object CanvasRenderer {
   }
 
   fun renderCanvas2DOverlay(gg: GuiGraphics) {
-    val children = CanvasRootClient.getChildren(CanvasRoot.Companion.ID_2D) ?: return
+    val children = CanvasRootClient.getChildren(CanvasRoot.ID_2D) ?: return
 
     // If we've no text renderer then we're probably not quite ready yet
     if (mc.font == null) return
@@ -55,7 +55,7 @@ object CanvasRenderer {
 
     // The hotbar renders at -90 (see Gui#renderHotbar)
     poseStack.translate(0.0, 0.0, -200.0)
-    poseStack.scale(mc.window.guiScaledWidth.toFloat() / CanvasRoot.Companion.WIDTH, mc.window.guiScaledHeight.toFloat() / CanvasRoot.Companion.HEIGHT, 1f)
+    poseStack.scale(mc.window.guiScaledWidth.toFloat() / CanvasRoot.WIDTH, mc.window.guiScaledHeight.toFloat() / CanvasRoot.HEIGHT, 1f)
 
     CanvasRootClient.drawChildren(children.iterator(), gg, null)
 
@@ -72,7 +72,7 @@ object CanvasRenderer {
   }
 
   fun renderCanvas3DOverlay(poseStack: PoseStack) {
-    val children = CanvasRootClient.getChildren(CanvasRoot.Companion.ID_3D) ?: return
+    val children = CanvasRootClient.getChildren(CanvasRoot.ID_3D) ?: return
     val buf = mc.renderBuffers().bufferSource()
     val gg = GuiGraphics(mc, poseStack, buf)
 

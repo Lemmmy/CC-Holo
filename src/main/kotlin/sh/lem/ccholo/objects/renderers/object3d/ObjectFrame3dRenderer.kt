@@ -1,8 +1,6 @@
 package sh.lem.ccholo.objects.renderers.object3d
 
 import com.mojang.blaze3d.pipeline.TextureTarget
-import com.mojang.blaze3d.platform.GlConst
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
@@ -38,9 +36,9 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       val mc = Minecraft.getInstance()
       val w = WIDTH.toFloat(); val h = HEIGHT.toFloat()
 
-      val currentBuffer = GlStateManager.getBoundFramebuffer()
-      val currentFog = RenderSystem.getShaderFogEnd()
-      val currentFogColor = RenderSystem.getShaderFogColor()
+      // val oldBuffer = GlStateManager.getBoundFramebuffer()
+      val oldFog = RenderSystem.getShaderFogEnd()
+      val oldFogColor = RenderSystem.getShaderFogColor()
       RenderSystem.setShaderFogEnd(2000.0f)
       RenderSystem.setShaderFogColor(0.0f, 0.0f, 0.0f, 0.0f)
 
@@ -68,7 +66,14 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       RenderSystem.viewport(0, 0, mc.window.width, mc.window.height)
       RenderSystem.restoreProjectionMatrix()
       framebuffer.unbindWrite()
-      GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, currentBuffer)
+
+      // Iris/Oculus compatibility: this feels wrong, but technically we're supposed to re-bind back to the game's main
+      // render target instead of the previous one. Iris/Oculus has a mixin to bindWrite which tracks the render state—
+      // disabling shaders when binding to a non-main render target—and calling _glBindFramebuffer(old) here would
+      // avoid that code path, breaking subsequent rendering. Hopefully, binding back to main here won't cause *other*
+      // problems.
+      mc.mainRenderTarget.bindWrite(false)
+      // GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, oldBuffer)
 
       // ==============================
       // Draw the framebuffer in the world
@@ -100,8 +105,8 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       builder.vertex(pose, 0.0f, 0.0f, 0.0f).uv(0.0f, 1.0f).endVertex()
       BufferUploader.drawWithShader(builder.end())
 
-      RenderSystem.setShaderFogEnd(currentFog)
-      RenderSystem.setShaderFogColor(currentFogColor[0], currentFogColor[1], currentFogColor[2], currentFogColor[3])
+      RenderSystem.setShaderFogEnd(oldFog)
+      RenderSystem.setShaderFogColor(oldFogColor[0], oldFogColor[1], oldFogColor[2], oldFogColor[3])
 
       poseStack.popPose()
     }
