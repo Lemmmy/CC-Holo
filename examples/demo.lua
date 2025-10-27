@@ -14,6 +14,8 @@ hologram.clearAllCanvasesGlobally()
 
 -- Set the clipboard for a player. Must be a non-empty UTF-8 string between 1 and 512 characters
 hologram.setClipboard(username, "Hello, world!")
+-- Prompts the player to open a given URL.
+-- hologram.openLink(username, "https://github.com/Lemmmy/CC-Holo")
 
 -------------------------------------------------------------------------------
 -- 3D OBJECTS

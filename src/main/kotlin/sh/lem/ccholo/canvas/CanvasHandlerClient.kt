@@ -1,18 +1,23 @@
 package sh.lem.ccholo.canvas
 
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.ConfirmLinkScreen
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.networking.*
+import java.net.URI
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 object CanvasHandlerClient {
+  private val mc by lazy { Minecraft.getInstance() }
+
   /// Client packets should already be running on the render thread (which has authority over the canvas root)
   private fun checkMainThread(name: String): Boolean {
-    if (!Minecraft.getInstance().isSameThread) {
+    if (!mc.isSameThread) {
       CCHolo.log.error("$name ran off-thread, refusing!")
       return false
     }
@@ -63,9 +68,25 @@ object CanvasHandlerClient {
     if (!checkMainThread("S2CCanvasSetClipboardPacket")) return
 
     try {
-      Minecraft.getInstance().keyboardHandler.clipboard = msg.text
+      mc.keyboardHandler.clipboard = msg.text
     } catch (e: Exception) {
       CCHolo.log.error("Error while setting clipboard", e)
+    }
+  }
+
+  internal fun onCanvasOpenLinkPacket(msg: S2CCanvasOpenLinkPacket) {
+    if (!checkMainThread("S2CCanvasOpenLinkPacket")) return
+
+    try {
+      val uri = URI.create(msg.url)
+      val parent = mc.screen
+
+      mc.setScreen(ConfirmLinkScreen({ open: Boolean ->
+        if (open) Util.getPlatform().openUri(uri)
+        mc.setScreen(parent)
+      }, msg.url, false))
+    } catch (e: Exception) {
+      CCHolo.log.error("Error while opening link", e)
     }
   }
 

@@ -11,6 +11,7 @@ import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.canvas.CanvasHandlerServer
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRootServer
+import sh.lem.ccholo.networking.S2CCanvasOpenLinkPacket
 import sh.lem.ccholo.networking.S2CCanvasSetClipboardPacket
 import sh.lem.ccholo.objects.object2d.Frame2d
 import sh.lem.ccholo.objects.object3d.WrappedOrigin3d
@@ -141,6 +142,19 @@ class HologramPeripheral(
 
     val (player, root) = getPlayerCanvasRoot(playerName)
     root.setClipboard(this, player, clipboard)
+    return MethodResult.of(true)
+  }
+
+  /**
+   * function(player:string, url:string) -- Prompts a player to open the given URL.
+   */
+  @LuaFunction(unsafe = true)
+  fun openLink(args: IArguments): MethodResult {
+    val playerName = args.getString(0)
+    val url = args.assertUtf8StringLength(1, 1, S2CCanvasOpenLinkPacket.URL_LIMIT)
+
+    val (player, root) = getPlayerCanvasRoot(playerName)
+    root.openLink(this, player, url)
     return MethodResult.of(true)
   }
 

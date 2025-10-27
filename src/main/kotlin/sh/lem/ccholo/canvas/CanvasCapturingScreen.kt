@@ -234,32 +234,42 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     return true
   }
 
+  private fun clearInputs() {
+    for (i in 0 until keysDown.size()) {
+      if (keysDown.get(i)) {
+        CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
+          key = i,
+          down = false,
+          captureMode = capturing
+        ))
+      }
+    }
+
+    keysDown.clear()
+
+    if (lastMouseButton >= 0) {
+      CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
+        event = Event.UP,
+        button = lastMouseButton + 1, // lua indexed
+        x = lastMouseX,
+        y = lastMouseY,
+      ))
+      lastMouseButton = -1
+    }
+  }
+
   override fun setFocused(focused: Boolean) {
     super.setFocused(focused)
 
     if (!focused) {
-      for (i in 0 until keysDown.size()) {
-        if (keysDown.get(i)) {
-          CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureKeyPacket(
-            key = i,
-            down = false,
-            captureMode = capturing
-          ))
-        }
-      }
-
-      keysDown.clear()
-
-      if (lastMouseButton >= 0) {
-        CCHoloPacketHandler.channel.sendToServer(C2SCanvasCaptureMousePacket(
-          event = Event.UP,
-          button = lastMouseButton + 1, // lua indexed
-          x = lastMouseX,
-          y = lastMouseY,
-        ))
-        lastMouseButton = -1
-      }
+      clearInputs()
     }
+  }
+
+  override fun removed() {
+    super.removed()
+
+    clearInputs()
   }
 
   override fun isPauseScreen() = false

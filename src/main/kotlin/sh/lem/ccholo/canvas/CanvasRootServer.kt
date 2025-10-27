@@ -176,6 +176,15 @@ class CanvasRootServer: CanvasRoot() {
     ))
   }
 
+  @Synchronized
+  fun openLink(peripheral: HologramPeripheral?, player: ServerPlayer, url: String) {
+    peripheral?.let { listeners.add(it) }
+
+    CCHoloPacketHandler.channel.send(PacketDistributor.PLAYER.with { player }, S2CCanvasOpenLinkPacket(
+      url = url
+    ))
+  }
+
   fun queueEvent(event: String, vararg args: Any) {
     listeners.forEach {
       it.queueEvent(event, *args)
