@@ -43,7 +43,9 @@ data class C2SCanvasCaptureMousePacket(
         val root = CanvasHandlerServer.getRootForPlayer(player)
 
         when (msg.event) {
-          MOVE -> root.queuePlayerEvent(msg.event.ccEvent, player, msg.x, msg.y)
+          // For mouse_move, always send the first argument (e.g. button, direction) as 1, to maintain backwards
+          // compatibility with programs that perform blanket-handling for all mouse events.
+          MOVE -> root.queuePlayerEvent(msg.event.ccEvent, player, 1, msg.x, msg.y)
           else -> root.queuePlayerEvent(msg.event.ccEvent, player, msg.button, msg.x, msg.y)
         }
       }

@@ -44,8 +44,8 @@ object HologramEvents {
   const val EVENT_MOUSE_DRAG = "hologram_mouse_drag"
 
   /**
-   * Event fired when the mouse is moved (moved while nothing is held) in capture mode.
-   * Parameters: player:string, uuid:string, x:number, y:number
+   * Event fired when the mouse is moved (moved while nothing is held) in capture mode. Button is always 1.
+   * Parameters: player:string, uuid:string, button:number, x:number, y:number
    */
   const val EVENT_MOUSE_MOVE = "hologram_mouse_move"
 
