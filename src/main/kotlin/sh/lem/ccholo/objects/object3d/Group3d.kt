@@ -32,18 +32,19 @@ interface Group3d : ObjectGroup {
   }
 
   /**
-   * function(x:number, y:number, z:number, itemId:string[, scale:number]):Item3d -- Create an item model.
+   * function(x:number, y:number, z:number, item:string[, scale:number]):Item3d -- Create an item model.
    */
   @LuaFunction
   fun addItem(args: IArguments): Item3d {
     val pos = args.getVec3(0)
-    val item = args.getItem(3)
+    val (item, nbt) = args.getItem(3)
     val scale = args.optDouble(4, 1.0).toFloat()
 
     val item3d = Item3d(canvasRootServer.newObjectId(), id, canvasRootServer)
     item3d.position = pos
     item3d.scale = scale
     item3d.item = item
+    item3d.nbt = nbt
 
     canvasRootServer.add(item3d)
     return item3d

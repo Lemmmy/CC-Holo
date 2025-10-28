@@ -1,14 +1,17 @@
 package sh.lem.ccholo.util
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaValues
 import dan200.computercraft.api.lua.LuaValues.badArgumentOf
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.Item
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.server.ServerLifecycleHooks
+import sh.lem.ccholo.CCHolo
+import sh.lem.ccholo.objects.ItemObject
 import java.nio.charset.StandardCharsets
 
 fun IArguments.getVec2(startIndex: Int = 0): Vec2 =
@@ -91,11 +94,22 @@ fun IArguments.assertStringLength(index: Int, min: Int, max: Int,
   return value
 }
 
-fun IArguments.getItem(index: Int): Item {
-  val id = ResourceLocation.tryParse(getString(index))
-    ?: throw LuaException("Invalid item id '${getString(index)}'")
-  if (!ForgeRegistries.ITEMS.containsKey(id)) throw LuaException("Unknown item '$id'")
-  return ForgeRegistries.ITEMS.getValue(id)!!
+fun IArguments.getItem(index: Int): Pair<Item, CompoundTag?> {
+  val def = getString(index)
+
+  try {
+    val server = ServerLifecycleHooks.getCurrentServer()
+    val registryAccess = server.registryAccess()
+    val enabledFeatures = server.worldData.enabledFeatures()
+
+    return ItemObject.parseObject(registryAccess, enabledFeatures, def)
+  } catch (e: CommandSyntaxException) {
+    CCHolo.log.error("Could not construct item (CommandSyntaxException) ${def}:", e)
+    throw LuaException("Invalid item or NBT '${def}'")
+  } catch (e: Exception) {
+    CCHolo.log.error("Could not construct item ${def}:", e)
+    throw LuaException("Unexpected error while parsing item")
+  }
 }
 
 fun IArguments.getUtf8String(index: Int): String {

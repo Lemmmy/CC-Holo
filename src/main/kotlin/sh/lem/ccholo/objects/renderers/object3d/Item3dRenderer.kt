@@ -8,15 +8,18 @@ import net.minecraft.client.renderer.LightTexture.FULL_BRIGHT
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY
 import net.minecraft.world.item.ItemDisplayContext
-import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import sh.lem.ccholo.canvas.CanvasRootClient
+import sh.lem.ccholo.objects.ItemObject
 import sh.lem.ccholo.objects.object3d.Item3d
 import sh.lem.ccholo.objects.renderers.BaseObjectRenderer
 
 @SideOnly(Side.CLIENT)
 object Item3dRenderer: BaseObjectRenderer<Item3d> {
+  private val mc by lazy { Minecraft.getInstance() }
+  private val itemRenderer by lazy { mc.itemRenderer }
+
   override fun draw(
     obj: Item3d,
     root: CanvasRootClient,
@@ -25,9 +28,8 @@ object Item3dRenderer: BaseObjectRenderer<Item3d> {
   ) {
     with (obj) {
       val item = item ?: return
-
-      val mc = Minecraft.getInstance()
-      val itemRenderer = mc.itemRenderer
+      val stack = stack ?: ItemObject.tryMakeStack(item, nbt).also { stack = it }
+      if (stack.isEmpty) return
 
       val poseStack = gg.pose()
       poseStack.pushPose()
@@ -45,7 +47,6 @@ object Item3dRenderer: BaseObjectRenderer<Item3d> {
         RenderSystem.disableDepthTest()
       }
 
-      val stack = stack ?: ItemStack(item).also { stack = it }
       itemRenderer.renderStatic(stack, ItemDisplayContext.NONE, FULL_BRIGHT, NO_OVERLAY, poseStack,
         immediate, mc.level, 0)
 

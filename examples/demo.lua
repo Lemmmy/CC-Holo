@@ -55,11 +55,11 @@ box2.setAlpha(255)
 box2.setDepthTested(false) -- defaults to 'true'. set to 'false' to render this in front of other blocks in the world
 
 -- Item3d
---   function(x:number, y:number, z:number, itemId:string[, scale:number]):Item3d
+--   function(x:number, y:number, z:number, item:string[, scale:number]):Item3d
 local item3d1 = group3d.addItem(x, y + 4, z - 2, "minecraft:stone")
 local item3d2 = group3d.addItem(x, y + 4, z    , "minecraft:diamond_pickaxe", 2) -- with scale
 local item3d3 = group3d.addItem(x, y + 4, z + 2, "minecraft:diamond_pickaxe", 0.5)
--- Item3d.setItem(itemId:string)
+-- Item3d.setItem(item:string) -- may have NBT in the /give format, e.g. `stick{foo:bar}`
 -- Item3d.setPosition(x:number, y:number, z:number)
 -- Item3d.setRotation(x:number, y:number, z:number)
 -- Item3d.setRotation()
@@ -245,11 +245,11 @@ lines3.setCap("round")
 --                                              must be an integer between 8 and 64. default = 16
 
 -- Item2d
---   function(x:number, y:number, itemId:string[, scale:number]):Item2d
+--   function(x:number, y:number, item:string[, scale:number]):Item2d
 local item2d1 = canvas2d.addItem(4, 32, "minecraft:stone")
 local item2d2 = canvas2d.addItem(24, 32, "minecraft:diamond_pickaxe", 2) -- with scale
-local item2d3 = canvas2d.addItem(64, 32, "minecraft:diamond_pickaxe", 0.5)
--- Item2d.setItem(itemId:string)
+local item2d3 = canvas2d.addItem(64, 32, "computercraft:turtle_advanced{RightUpgrade:'minecraft:diamond_pickaxe'}", 0.5)
+-- Item2d.setItem(item:string) -- may have NBT in the /give format, e.g. `stick{foo:bar}`
 -- Item2d.setPosition(x:number, y:number)
 -- Item2d.setScale(scale:number)
 

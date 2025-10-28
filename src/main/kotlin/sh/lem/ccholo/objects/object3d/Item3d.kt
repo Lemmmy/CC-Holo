@@ -1,5 +1,6 @@
 package sh.lem.ccholo.objects.object3d
 
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
@@ -26,7 +27,7 @@ class Item3d(
 
   internal var stack: ItemStack? = null
   override var item: Item? by DirtyingProperty(Items.STONE) { _, _, _ -> stack = null }
-  // TODO: Block states? Metadata? Can we use the NBT parser from /give?
+  override var nbt: CompoundTag? by DirtyingProperty(null) { _, _, _ -> stack = null }
 
   override fun readInitial(buf: FriendlyByteBuf) {
     position = buf.readVec3()
@@ -35,6 +36,7 @@ class Item3d(
 
     val id = ResourceLocation.tryParse(buf.readUtf())
     item = ForgeRegistries.ITEMS.getValue(id)
+    nbt = buf.readNullable(FriendlyByteBuf::readNbt)
 
     hasDepthTest = buf.readBoolean()
   }
@@ -44,6 +46,7 @@ class Item3d(
     buf.writeOptVec3(rotation)
     buf.writeFloat(scale)
     buf.writeUtf(ForgeRegistries.ITEMS.getKey(item).toString())
+    buf.writeNullable(nbt, FriendlyByteBuf::writeNbt)
     buf.writeBoolean(hasDepthTest)
   }
 }

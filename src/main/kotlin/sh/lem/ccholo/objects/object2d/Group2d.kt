@@ -161,17 +161,18 @@ interface Group2d : ObjectGroup {
   }
 
   /**
-   * function(x:number, y: number, itemId:string[, scale:number]):Item2d -- Create a new item.
+   * function(x:number, y: number, item:string[, scale:number]):Item2d -- Create a new item.
    */
   @LuaFunction
   fun addItem(args: IArguments): Item2d {
     val pos = args.getVec2(0)
-    val item = args.getItem(2)
+    val (item, nbt) = args.getItem(2)
     val scale = args.optDouble(3, 1.0).toFloat()
 
     val item2d = Item2d(canvasRootServer.newObjectId(), id, canvasRootServer)
     item2d.position = pos
     item2d.item = item
+    item2d.nbt = nbt
     item2d.scale = scale
 
     canvasRootServer.add(item2d)
