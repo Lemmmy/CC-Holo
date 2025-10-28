@@ -237,7 +237,7 @@ class CanvasCapturingScreen: Screen(Component.translatable(
 
     val (x, y) = mapPosition(mouseX, mouseY)
     C2SCanvasCaptureScrollPacket(
-      direction = if (delta > 0) 1 else -1,
+      direction = if (delta < 0) 1 else -1,
       x = x,
       y = y,
     ).send()
