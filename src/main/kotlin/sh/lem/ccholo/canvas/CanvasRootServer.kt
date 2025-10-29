@@ -113,7 +113,6 @@ class CanvasRootServer: CanvasRoot() {
     includeMouseMove: Boolean,
     hideMouse: Boolean
   ) {
-    if (capturing) queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     capturing = true
     capturingMouseMove = includeMouseMove
     hidingMouse = hideMouse

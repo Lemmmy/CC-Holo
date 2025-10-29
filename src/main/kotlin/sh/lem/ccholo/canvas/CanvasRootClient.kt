@@ -34,7 +34,10 @@ object CanvasRootClient : CanvasRoot() {
   }
 
   internal fun clientStopCapturing() {
-    mc.setScreen(null)
+    if (mc.screen is CanvasCapturingScreen) {
+      mc.setScreen(null)
+    }
+
     C2SCanvasStopCapturePacket().send()
     capturing = false
   }
@@ -45,13 +48,26 @@ object CanvasRootClient : CanvasRoot() {
     hidingMouse: Boolean,
     keyCaptures: IntSet
   ) {
+    val screen = mc.screen
+
+    if (capturing && !this.capturing) {
+      this.capturePendingOpen = true // Only open the GUI if we're not already capturing
+    }
+
     this.capturing = capturing
     this.capturingMouseMove = capturing && capturingMouseMove
     this.hidingMouse = capturing && hidingMouse
-    if (capturing) this.capturePendingOpen = true
 
     this.keyCaptures.clear()
     this.keyCaptures.addAll(keyCaptures)
+
+    if (screen is CanvasCapturingScreen) {
+      if (capturing) {
+        screen.reset() // In case the capture state has changed, 'bump' the capture GUI
+      } else {
+        mc.setScreen(null) // If we're no longer capturing, close the screen
+      }
+    }
   }
 
   internal fun updateScreenSize() {

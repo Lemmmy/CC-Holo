@@ -46,13 +46,21 @@ class CanvasCapturingScreen: Screen(Component.translatable(
 
   override fun init() {
     super.init()
+    reset()
+  }
 
+  fun reset() {
     // added() is too early to hide the mouse, since the game releases the mouse immediately before calling init()
-    if (hidingMouse) setMouseHidden(true)
+    setMouseHidden(hidingMouse)
   }
 
   override fun render(gg: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
     super.render(gg, mouseX, mouseY, partialTick)
+
+    if (!capturing) {
+      mc.setScreen(null) // If we're no longer capturing, close the screen
+      return
+    }
 
     gg.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF)
 
