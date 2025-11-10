@@ -1,6 +1,7 @@
 package sh.lem.ccholo.networking
 
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.network.NetworkEvent
 import sh.lem.ccholo.canvas.CanvasHandlerServer
 import sh.lem.ccholo.networking.C2SCanvasCaptureMousePacket.Event.CLICK
@@ -9,6 +10,7 @@ import sh.lem.ccholo.peripheral.HologramEvents.EVENT_MOUSE_CLICK
 import sh.lem.ccholo.peripheral.HologramEvents.EVENT_MOUSE_DRAG
 import sh.lem.ccholo.peripheral.HologramEvents.EVENT_MOUSE_MOVE
 import sh.lem.ccholo.peripheral.HologramEvents.EVENT_MOUSE_UP
+import sh.lem.ccholo.util.*
 import java.util.function.Supplier
 
 data class C2SCanvasCaptureMousePacket(
@@ -17,6 +19,8 @@ data class C2SCanvasCaptureMousePacket(
   val button: Int = 0,
   val x: Double = 0.0,
   val y: Double = 0.0,
+  val blockHit: BlockHitResult? = null,
+  val entityHit: EntityHitInfo? = null,
 ): CCHoloPacket {
   override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
@@ -24,15 +28,19 @@ data class C2SCanvasCaptureMousePacket(
     buf.writeInt(button)
     buf.writeDouble(x)
     buf.writeDouble(y)
+    buf.writeOptBlockHitResult(blockHit)
+    buf.writeOptEntityHitInfo(entityHit)
   }
 
   companion object {
     fun decode(buf: FriendlyByteBuf) = C2SCanvasCaptureMousePacket(
-      canvasId = buf.readInt(),
-      event    = buf.readEnum(Event::class.java),
-      button   = buf.readInt(),
-      x        = buf.readDouble(),
-      y        = buf.readDouble(),
+      canvasId  = buf.readInt(),
+      event     = buf.readEnum(Event::class.java),
+      button    = buf.readInt(),
+      x         = buf.readDouble(),
+      y         = buf.readDouble(),
+      blockHit  = buf.readOptBlockHitResult(),
+      entityHit = buf.readOptEntityHitInfo(),
     )
 
     fun handle(msg: C2SCanvasCaptureMousePacket, ctx: Supplier<NetworkEvent.Context>) {
@@ -42,12 +50,12 @@ data class C2SCanvasCaptureMousePacket(
         val player = c.sender ?: return@enqueueWork
         val root = CanvasHandlerServer.getRootForPlayer(player)
 
-        when (msg.event) {
-          // For mouse_move, always send the first argument (e.g. button, direction) as 1, to maintain backwards
-          // compatibility with programs that perform blanket-handling for all mouse events.
-          MOVE -> root.queuePlayerEvent(msg.event.ccEvent, player, 1, msg.x, msg.y)
-          else -> root.queuePlayerEvent(msg.event.ccEvent, player, msg.button, msg.x, msg.y)
-        }
+        val hitTable = HitResultUtil.createHitResultTable(msg.blockHit, msg.entityHit, player.level())
+
+        // For mouse_move, always send the first argument (e.g. button, direction) as 1, to maintain backwards
+        // compatibility with programs that perform blanket-handling for all mouse events.
+        val button = if (msg.event == MOVE) 1 else msg.button
+        root.queuePlayerEvent(msg.event.ccEvent, player, button, msg.x, msg.y, hitTable)
       }
 
       c.packetHandled = true

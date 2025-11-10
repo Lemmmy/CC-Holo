@@ -14,6 +14,8 @@ import sh.lem.ccholo.canvas.CanvasRootClient.hidingMouse
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.networking.C2SCanvasCaptureMousePacket.Event
 import sh.lem.ccholo.util.CCStringUtil
+import sh.lem.ccholo.util.RaycastUtil
+import sh.lem.ccholo.util.toEntityHitInfo
 import java.util.*
 
 private const val DRAG_INTERVAL_MS = 50
@@ -43,6 +45,9 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   private var timeLastMoveSent = -1L
 
   private val mc by lazy { Minecraft.getInstance() }
+  
+  // Set to null at the start of the frame so it's never stale, but still cached for the frame
+  private var lastRaycast: RaycastUtil.RaycastResult? = null
 
   override fun init() {
     super.init()
@@ -52,19 +57,22 @@ class CanvasCapturingScreen: Screen(Component.translatable(
   fun reset() {
     // added() is too early to hide the mouse, since the game releases the mouse immediately before calling init()
     setMouseHidden(hidingMouse)
+    lastRaycast = null
   }
 
   override fun render(gg: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
     super.render(gg, mouseX, mouseY, partialTick)
+
+    val time = System.currentTimeMillis()
+    lastRaycast = null
 
     if (!capturing) {
       mc.setScreen(null) // If we're no longer capturing, close the screen
       return
     }
 
+    // Close screen hint
     gg.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF)
-
-    val time = System.currentTimeMillis()
 
     // Mouse drag events
     if (
@@ -74,11 +82,14 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       && time != -1L
       && (timeLastDragSent == -1L || time - timeLastDragSent >= DRAG_INTERVAL_MS)
     ) {
+      val raycast = getRaycast(pendingDragX, pendingDragY)
       C2SCanvasCaptureMousePacket(
         event = Event.DRAG,
         button = lastMouseButton + 1, // lua indexed
         x = pendingDragX,
         y = pendingDragY,
+        blockHit = raycast.blockHit,
+        entityHit = raycast.entityHit?.toEntityHitInfo(),
       ).send()
       timeLastDragSent = time
       pendingDragButton = -1
@@ -93,10 +104,13 @@ class CanvasCapturingScreen: Screen(Component.translatable(
       && time != -1L
       && (timeLastMoveSent == -1L || time - timeLastMoveSent >= MOVE_INTERVAL_MS)
     ) {
+      val raycast = getRaycast(pendingMoveX, pendingMoveY)
       C2SCanvasCaptureMousePacket(
         event = Event.MOVE,
         x = pendingMoveX,
         y = pendingMoveY,
+        blockHit = raycast.blockHit,
+        entityHit = raycast.entityHit?.toEntityHitInfo(),
       ).send()
       timeLastMoveSent = time
       pendingMoveX = -1.0
@@ -168,16 +182,22 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     // (x * BASE_WIDTH / width).coerceIn(0.0, BASE_WIDTH.toDouble()) to (y * BASE_HEIGHT / height).coerceIn(0.0, BASE_HEIGHT.toDouble())
     x to y
 
+  private fun getRaycast(x: Double, y: Double): RaycastUtil.RaycastResult =
+    lastRaycast ?: RaycastUtil.raycastFromScreen(x, y, width, height).also { lastRaycast = it }
+
   override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
     if (!capturing || button !in 0..2) return false
 
     val (x, y) = mapPosition(mouseX, mouseY)
+    val raycast = getRaycast(x, y)
 
     C2SCanvasCaptureMousePacket(
       event  = Event.CLICK,
       button = button + 1, // lua indexed
       x      = x,
       y      = y,
+      blockHit = raycast.blockHit,
+      entityHit = raycast.entityHit?.toEntityHitInfo(),
     ).send()
 
     timeLastDragSent = -1L // in case the clock resets
@@ -199,12 +219,17 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     val (x, y) = mapPosition(mouseX, mouseY)
 
     if (lastMouseButton == button) {
+      val raycast = getRaycast(x, y)
+
       C2SCanvasCaptureMousePacket(
         event = Event.UP,
         button = button + 1, // lua indexed
         x = x,
         y = y,
+        blockHit = raycast.blockHit,
+        entityHit = raycast.entityHit?.toEntityHitInfo(),
       ).send()
+
       lastMouseButton = -1
     }
 
@@ -244,10 +269,14 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     if (!capturing) return false
 
     val (x, y) = mapPosition(mouseX, mouseY)
+    val raycast = getRaycast(x, y)
+    
     C2SCanvasCaptureScrollPacket(
       direction = if (delta < 0) 1 else -1,
       x = x,
       y = y,
+      blockHit = raycast.blockHit,
+      entityHit = raycast.entityHit?.toEntityHitInfo(),
     ).send()
 
     return true

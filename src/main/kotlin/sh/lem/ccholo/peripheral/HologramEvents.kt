@@ -27,31 +27,31 @@ object HologramEvents {
 
   /**
    * Event fired when a mouse button is clicked while in capture mode.
-   * Parameters: player:string, uuid:string, button:number, x:number, y:number
+   * Parameters: player:string, uuid:string, button:number, x:number, y:number, raycast:table
    */
   const val EVENT_MOUSE_CLICK = "hologram_mouse_click"
 
   /**
    * Event fired when a mouse button is released while in capture mode.
-   * Parameters: player:string, uuid:string, button:number, x:number, y:number
+   * Parameters: player:string, uuid:string, button:number, x:number, y:number, raycast:table
    */
   const val EVENT_MOUSE_UP = "hologram_mouse_up"
 
   /**
    * Event fired when the mouse is dragged (moved while a button is held) in capture mode.
-   * Parameters: player:string, uuid:string, last_button:number, x:number, y:number
+   * Parameters: player:string, uuid:string, last_button:number, x:number, y:number, raycast:table
    */
   const val EVENT_MOUSE_DRAG = "hologram_mouse_drag"
 
   /**
    * Event fired when the mouse is moved (moved while nothing is held) in capture mode. Button is always 1.
-   * Parameters: player:string, uuid:string, button:number, x:number, y:number
+   * Parameters: player:string, uuid:string, button:number, x:number, y:number, raycast:table
    */
   const val EVENT_MOUSE_MOVE = "hologram_mouse_move"
 
   /**
    * Event fired when the mouse wheel is scrolled while in capture mode.
-   * Parameters: player:string, uuid:string, direction:number, x:number, y:number
+   * Parameters: player:string, uuid:string, direction:number, x:number, y:number, raycast:table
    */
   const val EVENT_MOUSE_SCROLL = "hologram_mouse_scroll"
 
