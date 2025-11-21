@@ -1,19 +1,20 @@
-package sh.lem.ccholo.objects.renderers.object3d
+package sh.lem.ccholo.objects.renderers.object2d
 
-import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import sh.lem.ccholo.canvas.CanvasRootClient
-import sh.lem.ccholo.objects.object3d.ObjectFrame3d
+import sh.lem.ccholo.objects.object2d.ObjectFrame2d
 import sh.lem.ccholo.objects.renderers.BaseObjectRenderer
 import sh.lem.ccholo.objects.renderers.FrameRenderer
+import sh.lem.ccholo.objects.renderers.object3d.Rotatable3dRenderer
 
 @SideOnly(Side.CLIENT)
-object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
+object ObjectFrame2dRenderer: BaseObjectRenderer<ObjectFrame2d> {
   override fun draw(
-    obj: ObjectFrame3d,
+    obj: ObjectFrame2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
     buf: MultiBufferSource
@@ -31,7 +32,7 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
         height,
         children.iterator(),
         canvasRootClient,
-        300.0f
+        ForgeHooksClient.getGuiFarPlane()
       )
       if (framebuffer == null) {
         FrameRenderer.restoreFog()
@@ -39,20 +40,14 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       }
 
       // ==============================
-      // Draw the framebuffer in the world
+      // Draw the framebuffer on the screen
 
       val poseStack = gg.pose()
       poseStack.pushPose()
 
-      poseStack.translate(position.x, position.y, position.z)
-      poseStack.scale(scale, -scale, scale)
+      poseStack.translate(position.x.toDouble(), position.y.toDouble(), 0.0)
+      poseStack.scale(scale, scale, 1.0f)
       Rotatable3dRenderer.applyRotation(gg, rotation, true)
-
-      if (hasDepthTest) {
-        RenderSystem.enableDepthTest()
-      } else {
-        RenderSystem.disableDepthTest()
-      }
 
       FrameRenderer.drawFramebufferQuad(framebuffer, poseStack, w, h)
       FrameRenderer.restoreFog()

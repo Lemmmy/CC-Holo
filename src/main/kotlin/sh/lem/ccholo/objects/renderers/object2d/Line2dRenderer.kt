@@ -20,7 +20,7 @@ object Line2dRenderer: BaseObjectRenderer<Line2d> {
     obj: Line2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       BaseObjectRenderer.setupFlat()

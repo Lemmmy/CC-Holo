@@ -14,7 +14,7 @@ object ObjectGroup2dRenderer: BaseObjectRenderer<ObjectGroup2d> {
     obj: ObjectGroup2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       val children = canvasRootClient.getChildren(id) ?: return

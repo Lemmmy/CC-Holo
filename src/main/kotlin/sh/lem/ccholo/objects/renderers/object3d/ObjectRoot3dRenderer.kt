@@ -15,7 +15,7 @@ object ObjectRoot3dRenderer: BaseObjectRenderer<ObjectRoot3d> {
     obj: ObjectRoot3d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       val children = canvasRootClient.getChildren(id) ?: return

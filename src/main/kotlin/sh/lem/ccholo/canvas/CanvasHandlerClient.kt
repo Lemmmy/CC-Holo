@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.networking.*
+import sh.lem.ccholo.objects.renderers.FramebufferPool
 import java.net.URI
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -100,5 +101,6 @@ object CanvasHandlerClient {
     // in memory after leaving
     CCHolo.log.debug("Logging out, clearing canvas root")
     CanvasRootClient.reset()
+    FramebufferPool.clear()
   }
 }

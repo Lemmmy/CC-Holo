@@ -18,7 +18,7 @@ object Triangle2dRenderer: BaseObjectRenderer<Triangle2d> {
     obj: Triangle2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       if (points.size != 3) return; // should never happen

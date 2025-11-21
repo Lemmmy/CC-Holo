@@ -18,7 +18,7 @@ object Rectangle2dRenderer: BaseObjectRenderer<Rectangle2d> {
     obj: Rectangle2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       BaseObjectRenderer.setupFlat()

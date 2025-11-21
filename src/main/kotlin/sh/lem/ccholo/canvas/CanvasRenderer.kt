@@ -2,14 +2,18 @@ package sh.lem.ccholo.canvas
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.RenderGuiOverlayEvent
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay
+import net.minecraftforge.event.TickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import sh.lem.ccholo.objects.renderers.FramebufferPool
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 object CanvasRenderer {
@@ -21,7 +25,7 @@ object CanvasRenderer {
     // turn was meant to mirror the original Forge event)
     if (event.overlay === VanillaGuiOverlay.HOTBAR.type()) {
       mc.profiler.push("plethora:renderCanvas2DOverlay")
-      renderCanvas2DOverlay(event.guiGraphics)
+      renderCanvas2DOverlay()
       mc.profiler.pop()
     }
   }
@@ -36,7 +40,15 @@ object CanvasRenderer {
     }
   }
 
-  fun renderCanvas2DOverlay(gg: GuiGraphics) {
+  @SubscribeEvent
+  fun onRenderTick(event: TickEvent.RenderTickEvent) {
+    when (event.phase) {
+      TickEvent.Phase.START -> FramebufferPool.beginFrame()
+      TickEvent.Phase.END -> FramebufferPool.endFrame()
+    }
+  }
+
+  fun renderCanvas2DOverlay() {
     val children = CanvasRootClient.getChildren(CanvasRoot.ID_2D) ?: return
 
     // If we've no text renderer then we're probably not quite ready yet
@@ -44,20 +56,20 @@ object CanvasRenderer {
 
     RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
+    val innerPoseStack = PoseStack()
+    innerPoseStack.setIdentity()
+    innerPoseStack.translate(0.0, 0.0, -100.0)
+
+    val buf = MultiBufferSource.immediate(Tesselator.getInstance().builder)
+    val gg = GuiGraphics(mc, innerPoseStack, buf)
+
     // Remove the fog so that 3D canvases render properly from a distance
     val currentFog = RenderSystem.getShaderFogEnd()
     val currentFogColor = RenderSystem.getShaderFogColor()
     RenderSystem.setShaderFogEnd(2000.0f) // TODO: may need to grow this significantly
     RenderSystem.setShaderFogColor(0.0f, 0.0f, 0.0f, 0.0f)
 
-    val poseStack = gg.pose()
-    poseStack.pushPose()
-
-    // The hotbar renders at -90 (see Gui#renderHotbar)
-    poseStack.translate(0.0, 0.0, -200.0)
-    // poseStack.scale(mc.window.guiScaledWidth.toFloat() / CanvasRoot.BASE_WIDTH, mc.window.guiScaledHeight.toFloat() / CanvasRoot.BASE_HEIGHT, 1f)
-
-    CanvasRootClient.drawChildren(children.iterator(), gg, null)
+    CanvasRootClient.drawChildren(children.iterator(), gg, buf)
 
     // Restore the renderer state
     RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -68,7 +80,7 @@ object CanvasRenderer {
     RenderSystem.setShaderFogEnd(currentFog)
     RenderSystem.setShaderFogColor(currentFogColor[0], currentFogColor[1], currentFogColor[2], currentFogColor[3])
 
-    poseStack.popPose()
+    innerPoseStack.popPose()
   }
 
   fun renderCanvas3DOverlay(poseStack: PoseStack) {

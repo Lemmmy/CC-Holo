@@ -18,7 +18,7 @@ object Lines2dRenderer: BaseObjectRenderer<Lines2d> {
     obj: Lines2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       val tris = cachedTriangles ?: return

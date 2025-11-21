@@ -32,7 +32,7 @@ object Text2dRenderer: BaseObjectRenderer<Text2d> {
     obj: Text2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       // If the alpha channel doesn't match a 0xFC, then the font renderer

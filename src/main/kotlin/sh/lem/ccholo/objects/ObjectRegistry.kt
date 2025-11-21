@@ -20,13 +20,14 @@ object ObjectRegistry {
   const val LINES_2D: Byte = 6
   const val ITEM_2D: Byte = 7
   const val GROUP_2D: Byte = 8
+  const val FRAME_2D: Byte = 13
 
   // 3D
   const val ORIGIN_3D: Byte = 9
   const val FRAME_3D: Byte = 10
   const val BOX_3D: Byte = 11
   const val ITEM_3D: Byte = 12
-  // const val LINE_3D: Byte = 13
+  // const val LINE_3D: Byte = 14
 
   private val factories = arrayOf(
     // 2D
@@ -45,6 +46,7 @@ object ObjectRegistry {
     Factory(::ObjectFrame3d),
     Factory(::Box3d),
     Factory(::Item3d),
+    Factory(::ObjectFrame2d),
     null, // Factory(::Line3d)
   )
 

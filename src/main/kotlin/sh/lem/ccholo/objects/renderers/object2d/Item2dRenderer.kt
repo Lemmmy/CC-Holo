@@ -20,7 +20,7 @@ object Item2dRenderer: BaseObjectRenderer<Item2d> {
     obj: Item2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       val item = item ?: return

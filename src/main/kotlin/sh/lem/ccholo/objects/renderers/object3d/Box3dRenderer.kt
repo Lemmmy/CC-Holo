@@ -19,7 +19,7 @@ object Box3dRenderer: BaseObjectRenderer<Box3d> {
     obj: Box3d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       BaseObjectRenderer.setupFlat()

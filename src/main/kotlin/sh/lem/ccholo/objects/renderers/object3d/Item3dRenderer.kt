@@ -24,7 +24,7 @@ object Item3dRenderer: BaseObjectRenderer<Item3d> {
     obj: Item3d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       val item = item ?: return

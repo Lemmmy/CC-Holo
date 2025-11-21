@@ -71,9 +71,10 @@ item3d2.setRotation(45, 45, 0) -- in degrees
 item3d3.setRotation() -- always face the player
 
 -- ObjectFrame3d
---   function(x:number, y:number, z:number):ObjectFrame3d
+--   function(x:number, y:number, z:number, [width:number, height: number]):ObjectFrame3d
 -- Creates a 2D canvas that is rendered in 3D space. All of the methods from the 2D canvas (shown below) are available.
--- The canvas is 512x288 (16:9), the same as the screen-space 2D canvas.
+-- The default canvas is 512x288 (16:9). A maximum of 16 different frame resolutions (shared across both 2D and 3D) may
+-- be used at any given time. The minimum width/height is 1 pixel and the maximum is 8192 pixels.
 local frame3d = group3d.addFrame(x - 2, y + 4, z - 2)
 frame3d.setRotation(45, 45, 45) -- in degrees
 frame3d.addRectangle(0, 0, 16, 16, 0xFF0000FF)
@@ -81,6 +82,7 @@ frame3d.addRectangle(0, 0, 16, 16, 0xFF0000FF)
 -- ObjectFrame3d.setRotation(x:number, y:number, z:number)
 -- ObjectFrame3d.setRotation()
 -- ObjectFrame3d.setScale(scale:number) -- defaults to 1/64
+-- ObjectFrame3d.setSize(width:number, height:number)
 -- ObjectFrame3d.setDepthTested(depthTested:boolean)
 -- plus all of the add* methods from the 2D canvas (shown below)
 
@@ -259,6 +261,22 @@ local group = canvas2d.addGroup(canvasW / 2, 0)
 -- ObjectGroup2d.setPosition(x:number, y:number)
 -- plus all of the add* methods from the 2D canvas
 group.addRectangle(0, 0, 16, 16, 0xFFFF00FF)
+
+-- ObjectFrame2d
+--   function(x:number, y:number, [width:number, height: number]):ObjectFrame2d
+-- Creates a 2D canvas with a given size. Objects outside the frame will be clipped. The frame can also be rotated and
+-- scaled freely. All of the methods from the 2D canvas (shown above) are available.
+-- The default canvas is 512x288 (16:9). A maximum of 16 different frame resolutions (shared across both 2D and 3D) may
+-- be used at any given time. The minimum width/height is 1 pixel and the maximum is 8192 pixels.
+local frame2d = canvas2d.addFrame(canvasW - 80, 0, 64, 64)
+frame2d.addRectangle(0, 0, 128 --[[ will get clipped off ]], 64, 0xFF0000FF)
+frame2d.setRotation(45, 45, 45) -- in degrees
+-- ObjectFrame2d.setPosition(x:number, y:number)
+-- ObjectFrame2d.setRotation(x:number, y:number, z:number) -- can be rotated in 3D
+-- ObjectFrame2d.setRotation()
+-- ObjectFrame2d.setScale(scale:number) -- defaults to 1
+-- ObjectFrame2d.setSize(width:number, height:number)
+-- plus all of the add* methods from the 2D canvas (shown above)
 
 while true do
   rect1.setSize((math.sin(os.epoch("utc") / 1000) * 16) + 32, 16)

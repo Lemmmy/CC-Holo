@@ -5,6 +5,8 @@ import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import net.minecraft.network.chat.Component
 import sh.lem.ccholo.CCHolo
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_FRAME_HEIGHT
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_FRAME_WIDTH
 import sh.lem.ccholo.objects.DEFAULT_COLOUR
 import sh.lem.ccholo.objects.ObjectGroup
 import sh.lem.ccholo.objects.TextObject
@@ -191,5 +193,22 @@ interface Group2d : ObjectGroup {
 
     canvasRootServer.add(group)
     return group
+  }
+
+  /**
+   * function(x:number, y:number, [width:number, height: number]):ObjectFrame2d -- Create a new 2D frame.
+   */
+  @LuaFunction
+  fun addFrame(args: IArguments): ObjectFrame2d {
+    val pos = args.getVec2(0)
+    val width = args.optInt(2, BASE_FRAME_WIDTH)
+    val height = args.optInt(3, BASE_FRAME_HEIGHT)
+
+    val frame = ObjectFrame2d(canvasRootServer.newObjectId(), id, canvasRootServer)
+    frame.position = pos
+    frame.setSize(width, height)
+
+    canvasRootServer.add(frame)
+    return frame
   }
 }

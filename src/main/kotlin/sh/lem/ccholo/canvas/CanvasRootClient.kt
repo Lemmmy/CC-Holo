@@ -122,12 +122,12 @@ object CanvasRootClient : CanvasRoot() {
   }
 
   @SideOnly(Side.CLIENT)
-  fun drawChildren(children: IntIterator, gg: GuiGraphics?, buf: MultiBufferSource?) {
+  fun drawChildren(children: IntIterator, gg: GuiGraphics, buf: MultiBufferSource) {
     while (children.hasNext()) {
       val id = children.nextInt()
       val obj = getObject(id) ?: continue
       val renderer = ObjectRendererRegistry.getRenderer<BaseObject>(obj.type) ?: continue
-      renderer.draw(obj, this, gg!!, buf)
+      renderer.draw(obj, this, gg, buf)
     }
   }
 }

@@ -1,8 +1,8 @@
 package sh.lem.ccholo.networking
 
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraftforge.registries.ForgeRegistries
 import sh.lem.ccholo.util.EntityHitInfo
 
 object HitResultUtil {
@@ -27,7 +27,7 @@ object HitResultUtil {
   private fun serializeBlockHit(hit: BlockHitResult, level: Level): Map<String, Any> {
     val blockState = level.getBlockState(hit.blockPos)
     val block = blockState.block
-    val blockId = BuiltInRegistries.BLOCK.getKey(block).toString()
+    val blockId = ForgeRegistries.BLOCKS.getKey(block).toString()
     
     return mapOf(
       "pos" to mapOf(
@@ -63,7 +63,7 @@ object HitResultUtil {
     
     // Add entity type and name if entity is found
     if (entity != null) {
-      val entityType = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type).toString()
+      val entityType = ForgeRegistries.ENTITY_TYPES.getKey(entity.type).toString()
       baseMap["type"] = entityType
       
       if (entity.hasCustomName()) {

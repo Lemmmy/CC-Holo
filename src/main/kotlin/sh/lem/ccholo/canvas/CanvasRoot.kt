@@ -57,9 +57,10 @@ abstract class CanvasRoot: BaseDirtyable {
     const val ID_2D = 0
     const val ID_3D = 1
 
-    // TODO: Configurable framebuffer scale
-    const val BASE_WIDTH = 512
-    const val BASE_HEIGHT = 512 / 16 * 9
+    const val BASE_FRAME_WIDTH = 512
+    const val BASE_FRAME_HEIGHT = 512 / 16 * 9
+    const val MAX_FRAME_WIDTH = 8192
+    const val MAX_FRAME_HEIGHT = 8192 // TODO: does this depend on GPU in 2025?
 
     // In practice, it's GLFW_KEY_LAST (GLFW_KEY_MENU=348) but we can't access that on the server, so use a safe value
     const val MAX_KEY_CODE = 512

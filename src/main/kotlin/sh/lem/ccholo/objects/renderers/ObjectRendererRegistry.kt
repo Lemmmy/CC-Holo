@@ -27,6 +27,7 @@ object ObjectRendererRegistry {
       ObjectFrame3dRenderer,
       Box3dRenderer,
       Item3dRenderer,
+      ObjectFrame2dRenderer,
       null, // Line3dRenderer,
     )
   }

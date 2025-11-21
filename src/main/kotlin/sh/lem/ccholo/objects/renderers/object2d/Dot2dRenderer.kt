@@ -18,7 +18,7 @@ object Dot2dRenderer: BaseObjectRenderer<Dot2d> {
     obj: Dot2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       BaseObjectRenderer.setupFlat()

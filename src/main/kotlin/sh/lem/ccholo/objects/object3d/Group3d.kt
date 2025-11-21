@@ -3,6 +3,8 @@ package sh.lem.ccholo.objects.object3d
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaFunction
 import net.minecraft.world.phys.Vec3
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_FRAME_HEIGHT
+import sh.lem.ccholo.canvas.CanvasRoot.Companion.BASE_FRAME_WIDTH
 import sh.lem.ccholo.objects.DEFAULT_COLOUR
 import sh.lem.ccholo.objects.ObjectGroup
 import sh.lem.ccholo.util.getItem
@@ -51,14 +53,18 @@ interface Group3d : ObjectGroup {
   }
 
   /**
-   * function(function(x:number, y:number, z:number):ObjectFrame3d -- Create a new frame to put 2D objects in.
+   * function(function(x:number, y:number, z:number, [width:number, height: number]):ObjectFrame3d
+   * -- Create a new frame to put 2D objects in.
    */
   @LuaFunction
   fun addFrame(args: IArguments): ObjectFrame3d {
     val pos = args.getVec3(0)
+    val width = args.optInt(3, BASE_FRAME_WIDTH)
+    val height = args.optInt(4, BASE_FRAME_HEIGHT)
 
     val frame3d = ObjectFrame3d(canvasRootServer.newObjectId(), id, canvasRootServer)
     frame3d.position = pos
+    frame3d.setSize(width, height)
 
     canvasRootServer.add(frame3d)
     return frame3d

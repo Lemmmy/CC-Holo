@@ -18,7 +18,7 @@ object Polygon2dRenderer: BaseObjectRenderer<Polygon2d> {
     obj: Polygon2d,
     root: CanvasRootClient,
     gg: GuiGraphics,
-    buf: MultiBufferSource?
+    buf: MultiBufferSource
   ) {
     with (obj) {
       BaseObjectRenderer.setupFlat()
