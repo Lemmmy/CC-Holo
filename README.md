@@ -24,7 +24,7 @@ mouse and keyboard capture through a 'capture mode' GUI.
 The two demo files&mdash;[examples/demo.lua](https://github.com/Lemmmy/CC-Holo/blob/HEAD/examples/demo.lua) and 
 [examples/capture_demo.lua](https://github.com/Lemmmy/CC-Holo/blob/HEAD/examples/capture_demo.lua)&mdash;contain usage
 examples of the mod's features, as well as a list of most of the available functions. You can also
-[search for `@LuaFunction`](<https://github.com/search?q=repo%3ALemmmy%2FCC-Holo%20%40LuaFunction&type=code]>) in the 
+[search for `@LuaFunction`](<https://github.com/search?q=repo%3ALemmmy%2FCC-Holo%20%40LuaFunction&type=code>) in the 
 source code to find every function if you prefer (requires a GitHub account).
 
 ## Modpacks
