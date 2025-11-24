@@ -1,5 +1,6 @@
 package sh.lem.ccholo.objects.object3d
 
+import dan200.computercraft.api.lua.LuaFunction
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.phys.Vec3
 import sh.lem.ccholo.canvas.CanvasRoot
@@ -28,7 +29,8 @@ class ObjectFrame3d(
   
   override val width: Int get() = _width
   override val height: Int get() = _height
-  
+
+  @LuaFunction
   override fun setSize(width: Int, height: Int) {
     _width = width.coerceIn(1, CanvasRoot.MAX_FRAME_WIDTH)
     _height = height.coerceIn(1, CanvasRoot.MAX_FRAME_HEIGHT)

@@ -120,8 +120,8 @@ interface Group2d : ObjectGroup {
 
     val triangle = Triangle2d(canvasRootServer.newObjectId(), id, canvasRootServer)
     triangle.setVertex(0, p1)
-    triangle.setVertex(0, p2)
-    triangle.setVertex(0, p3)
+    triangle.setVertex(1, p2)
+    triangle.setVertex(2, p3)
     triangle.colour = colour
 
     canvasRootServer.add(triangle)

@@ -1,5 +1,6 @@
 package sh.lem.ccholo.objects.object2d
 
+import dan200.computercraft.api.lua.LuaFunction
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -29,6 +30,7 @@ class ObjectFrame2d(
   override val width: Int get() = _width
   override val height: Int get() = _height
 
+  @LuaFunction
   override fun setSize(width: Int, height: Int) {
     _width = width.coerceIn(1, CanvasRoot.MAX_FRAME_WIDTH)
     _height = height.coerceIn(1, CanvasRoot.MAX_FRAME_HEIGHT)
