@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSet
-import sh.lem.ccholo.canvas.CanvasRootClient.capturePendingOpen
 import sh.lem.ccholo.objects.BaseObject
 import sh.lem.ccholo.util.BaseDirtyable
 import sh.lem.ccholo.util.DirtyingProperty
@@ -41,7 +40,6 @@ abstract class CanvasRoot: BaseDirtyable {
 
     capturing = false
     capturingMouseMove = false
-    capturePendingOpen = false
     hidingMouse = false
 
     keyCaptures.clear()

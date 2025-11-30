@@ -28,6 +28,8 @@ object CanvasRootClient : CanvasRoot() {
 
     updateScreenSize()
 
+    capturePendingOpen = false
+
     if (mc.screen is CanvasCapturingScreen) {
       mc.setScreen(null)
     }
