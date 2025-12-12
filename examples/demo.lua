@@ -17,6 +17,9 @@ hologram.setClipboard(username, "Hello, world!")
 -- Prompts the player to open a given URL.
 -- hologram.openLink(username, "https://github.com/Lemmmy/CC-Holo")
 
+-- Gets a player's timezone, as an IANA timezone ID, and a UTC offset in seconds
+local tz, tzOffset = hologram.getTimezone(username) -- "Europe/London", 0
+
 -------------------------------------------------------------------------------
 -- 3D OBJECTS
 -------------------------------------------------------------------------------

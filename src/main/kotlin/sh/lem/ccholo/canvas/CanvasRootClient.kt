@@ -15,6 +15,8 @@ import sh.lem.ccholo.networking.send
 import sh.lem.ccholo.objects.BaseObject
 import sh.lem.ccholo.objects.ObjectGroup
 import sh.lem.ccholo.objects.renderers.ObjectRendererRegistry
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 object CanvasRootClient : CanvasRoot() {
   var capturePendingOpen = false
@@ -82,9 +84,13 @@ object CanvasRootClient : CanvasRoot() {
 
   internal fun sendScreenSizePacket() {
     try {
+      val tz = ZoneId.systemDefault()
+      val tzOffset = ZonedDateTime.now(tz).offset.totalSeconds
+
       C2SCanvasScreenSizePacket(
         canvasId = 0,
-        screenWidth, screenHeight, guiScaledWidth, guiScaledHeight, guiScale
+        screenWidth, screenHeight, guiScaledWidth, guiScaledHeight, guiScale,
+        tz.id, tzOffset
       ).send()
     } catch (e: Exception) {
       CCHolo.log.error("Error while sending screen size packet", e)

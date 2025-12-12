@@ -3,6 +3,7 @@ package sh.lem.ccholo.peripheral
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
+import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.peripheral.IComputerAccess
 import dan200.computercraft.api.peripheral.IPeripheral
 import net.minecraft.server.level.ServerPlayer
@@ -153,6 +154,16 @@ class HologramPeripheral(
 
     val (player, root) = getPlayerCanvasRoot(playerName)
     root.openLink(player, url)
+  }
+
+  /**
+   * function(player:string):string,number -- Returns a player's timezone, as an IANA timezone ID string, and a
+   *   UTC offset in seconds.
+   */
+  @LuaFunction(unsafe = true)
+  fun getTimezone(playerName: String): MethodResult {
+    val (_, root) = getPlayerCanvasRoot(playerName)
+    return MethodResult.of(root.timezone, root.timezoneOffsetSeconds)
   }
 
   override fun attach(computer: IComputerAccess) {

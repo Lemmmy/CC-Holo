@@ -12,7 +12,9 @@ data class C2SCanvasScreenSizePacket(
   val screenHeight: Int,
   val guiScaledWidth: Int,
   val guiScaledHeight: Int,
-  val guiScale: Double
+  val guiScale: Double,
+  val timezone: String,
+  val timezoneOffsetSeconds: Int
 ): CCHoloPacket {
   override fun encode(buf: FriendlyByteBuf) {
     buf.writeInt(canvasId)
@@ -21,6 +23,8 @@ data class C2SCanvasScreenSizePacket(
     buf.writeInt(guiScaledWidth)
     buf.writeInt(guiScaledHeight)
     buf.writeDouble(guiScale)
+    buf.writeUtf(timezone)
+    buf.writeInt(timezoneOffsetSeconds)
   }
 
   companion object {
@@ -30,7 +34,9 @@ data class C2SCanvasScreenSizePacket(
       screenHeight = buf.readInt(),
       guiScaledWidth = buf.readInt(),
       guiScaledHeight = buf.readInt(),
-      guiScale = buf.readDouble()
+      guiScale = buf.readDouble(),
+      timezone = buf.readUtf(),
+      timezoneOffsetSeconds = buf.readInt()
     )
 
     fun handle(msg: C2SCanvasScreenSizePacket, ctx: Supplier<NetworkEvent.Context>) {
@@ -39,11 +45,15 @@ data class C2SCanvasScreenSizePacket(
         val player = c.sender ?: return@enqueueWork
 
         val root = CanvasHandlerServer.getRootForPlayer(player)
+
         root.screenWidth = msg.screenWidth.coerceAtLeast(1)
         root.screenHeight = msg.screenHeight.coerceAtLeast(1)
         root.guiScaledWidth = msg.guiScaledWidth.coerceAtLeast(1)
         root.guiScaledHeight = msg.guiScaledHeight.coerceAtLeast(1)
         root.guiScale = msg.guiScale.coerceAtLeast(0.1)
+
+        root.timezone = msg.timezone
+        root.timezoneOffsetSeconds = msg.timezoneOffsetSeconds
 
         if (root.pollScreenSizeDirty()) {
           root.queuePlayerEvent(

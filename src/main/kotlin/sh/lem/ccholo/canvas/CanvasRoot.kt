@@ -30,6 +30,9 @@ abstract class CanvasRoot: BaseDirtyable {
   var guiScaledHeight by DirtyingProperty(0) { _, _, _ -> screenSizeDirty = true }
   var guiScale by DirtyingProperty(0.0) { _, _, _ -> screenSizeDirty = true }
 
+  var timezone by DirtyingProperty("")
+  var timezoneOffsetSeconds by DirtyingProperty(0)
+
   abstract fun makeChildSet(): IntSet
 
   open fun reset() {
