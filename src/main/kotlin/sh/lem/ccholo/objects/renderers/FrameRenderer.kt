@@ -1,6 +1,7 @@
 package sh.lem.ccholo.objects.renderers
 
 import com.mojang.blaze3d.pipeline.TextureTarget
+import com.mojang.blaze3d.platform.GlConst.*
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.*
@@ -99,6 +100,13 @@ object FrameRenderer {
       translate(0.0, 0.0, -100.0)
     }
 
+    RenderSystem.enableBlend()
+    RenderSystem.blendEquation(GL_FUNC_ADD)
+    RenderSystem.blendFuncSeparate(
+      GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+      GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+    )
+
     val buf = MultiBufferSource.immediate(Tesselator.getInstance().builder)
     val gg = GuiGraphics(mc, pose, buf)
     canvasRootClient.drawChildren(children, gg, buf)
@@ -120,6 +128,11 @@ object FrameRenderer {
     RenderSystem.setShader(GameRenderer::getPositionTexShader)
     RenderSystem.setShaderTexture(0, framebuffer.colorTextureId)
     RenderSystem.enableBlend()
+    RenderSystem.blendEquation(GL_FUNC_ADD)
+    RenderSystem.blendFuncSeparate(
+      GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+      GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+    )
 
     builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     builder.vertex(pose, 0.0f, height, 0.0f).uv(0.0f, 0.0f).endVertex()
