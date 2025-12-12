@@ -37,6 +37,7 @@ object CanvasHandlerClient {
       capturing = msg.capturing,
       capturingMouseMove = msg.capturingMouseMove,
       hidingMouse = msg.hidingMouse,
+      hidingText = msg.hidingText,
       keyCaptures = msg.keyCaptures
     )
   }
@@ -57,6 +58,7 @@ object CanvasHandlerClient {
       capturing = msg.capturing,
       capturingMouseMove = msg.capturingMouseMove,
       hidingMouse = msg.hidingMouse,
+      hidingText = msg.hidingText,
       keyCaptures = msg.keyCaptures
     )
   }

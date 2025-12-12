@@ -11,6 +11,7 @@ import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRootClient.capturing
 import sh.lem.ccholo.canvas.CanvasRootClient.capturingMouseMove
 import sh.lem.ccholo.canvas.CanvasRootClient.hidingMouse
+import sh.lem.ccholo.canvas.CanvasRootClient.hidingText
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.networking.C2SCanvasCaptureMousePacket.Event
 import sh.lem.ccholo.util.CCStringUtil
@@ -72,7 +73,9 @@ class CanvasCapturingScreen: Screen(Component.translatable(
     }
 
     // Close screen hint
-    gg.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF)
+    if (!hidingText) {
+      gg.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF)
+    }
 
     // Mouse drag events
     if (

@@ -107,9 +107,16 @@ hologram.clearKeyCaptures(username)
 -- hologram.clearAllCanvasesGlobally()
 
 -- Enter capture mode:
+-- function(player:string[, includeMouseMove:boolean[, hideMouse:boolean[, hideText:string]]]])
+----- Starts capturing all mouse and keyboard inputs for a player.
+----- If `includeMouseMove` is `true`, then `hologram_mouse_move` events will also be fired.
+----- If `hideMouse` is `true`, then the mouse cursor will be hidden.
+----- If `hideText` is `true`, then the text that tells the player how to exit capture mode will be hidden. Use with
+-----   caution, as it may confuse players who do not realise they are in capture mode.
 -- hologram.startCapture(username)
 -- hologram.startCapture(username, true) -- include hologram_mouse_move events
 -- hologram.startCapture(username, true, true) -- hide the mouse cursor
+-- hologram.startCapture(username, true, true, true) -- hide the 'Press Escape to close' text at the top of the screen
 -- hologram.stopCapture(username)
 
 -- Global key capture:

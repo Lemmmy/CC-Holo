@@ -15,6 +15,7 @@ data class S2CCanvasCaptureStatePacket(
   val capturing: Boolean,
   val capturingMouseMove: Boolean,
   val hidingMouse: Boolean,
+  val hidingText: Boolean,
   val keyCaptures: IntSet
 ): CCHoloPacket {
   override fun encode(buf: FriendlyByteBuf) {
@@ -22,6 +23,7 @@ data class S2CCanvasCaptureStatePacket(
     buf.writeBoolean(capturing)
     buf.writeBoolean(capturingMouseMove)
     buf.writeBoolean(hidingMouse)
+    buf.writeBoolean(hidingText)
     buf.writeVarIntArray(keyCaptures.toIntArray())
   }
 
@@ -31,6 +33,7 @@ data class S2CCanvasCaptureStatePacket(
       capturing = buf.readBoolean(),
       capturingMouseMove = buf.readBoolean(),
       hidingMouse = buf.readBoolean(),
+      hidingText = buf.readBoolean(),
       keyCaptures = IntOpenHashSet(buf.readVarIntArray())
     )
 

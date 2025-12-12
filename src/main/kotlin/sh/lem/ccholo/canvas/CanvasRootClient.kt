@@ -50,6 +50,7 @@ object CanvasRootClient : CanvasRoot() {
     capturing: Boolean,
     capturingMouseMove: Boolean,
     hidingMouse: Boolean,
+    hidingText: Boolean,
     keyCaptures: IntSet
   ) {
     val screen = mc.screen
@@ -61,6 +62,7 @@ object CanvasRootClient : CanvasRoot() {
     this.capturing = capturing
     this.capturingMouseMove = capturing && capturingMouseMove
     this.hidingMouse = capturing && hidingMouse
+    this.hidingText = capturing && hidingText
 
     this.keyCaptures.clear()
     this.keyCaptures.addAll(keyCaptures)

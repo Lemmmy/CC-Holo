@@ -43,6 +43,7 @@ class CanvasRootServer: CanvasRoot() {
       capturing = capturing,
       capturingMouseMove = capturingMouseMove,
       hidingMouse = hidingMouse,
+      hidingText = hidingText,
       keyCaptures = keyCaptures
     )
   } catch (e: Exception) {
@@ -84,6 +85,7 @@ class CanvasRootServer: CanvasRoot() {
       capturing = capturing,
       capturingMouseMove = capturingMouseMove,
       hidingMouse = hidingMouse,
+      hidingText = hidingText,
       keyCaptures = keyCaptures
     ).send(player)
   }
@@ -111,11 +113,13 @@ class CanvasRootServer: CanvasRoot() {
   fun startCapture(
     player: ServerPlayer,
     includeMouseMove: Boolean,
-    hideMouse: Boolean
+    hideMouse: Boolean,
+    hideText: Boolean
   ) {
     capturing = true
     capturingMouseMove = includeMouseMove
     hidingMouse = hideMouse
+    hidingText = hideText
     sendCaptureStatePacket(player)
   }
 
@@ -125,6 +129,7 @@ class CanvasRootServer: CanvasRoot() {
     capturing = false
     capturingMouseMove = false
     hidingMouse = false
+    hidingText = false
     queuePlayerEvent(EVENT_CAPTURE_STOP, player)
     if (sendPacket) sendCaptureStatePacket(player)
   }
