@@ -27,9 +27,6 @@ cc-api-core = { module = "cc.tweaked:cc-tweaked-1.20.1-core-api", version.ref = 
 cc-api-forge = { module = "cc.tweaked:cc-tweaked-1.20.1-forge-api", version.ref = "cc" }
 cc-runtime = { module = "cc.tweaked:cc-tweaked-1.20.1-forge", version.ref = "cc" }
 
-cache2k-api = { module = "org.cache2k:cache2k-api", version.ref = "cache2k" }
-cache2k-core = { module = "org.cache2k:cache2k-core", version.ref = "cache2k" }
-
 [plugins]
 neoforged-legacyforge = { id = "net.neoforged.moddev.legacyforge", version.ref = "neoforged_legacyforge" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

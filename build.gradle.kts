@@ -1,4 +1,3 @@
-
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,21 +83,6 @@ dependencies {
   modCompileOnly(libs.cc.api.core)
   modCompileOnly(libs.cc.api.forge)
   modRuntimeOnly(libs.cc.runtime)
-
-  arrayOf(libs.cache2k.api, libs.cache2k.core).forEach {
-    implementation(it)
-    jarJar(it)
-    "additionalRuntimeClasspath"(it)
-  }
-}
-
-configurations {
-  "additionalRuntimeClasspath" {
-    extendsFrom(jarJar.get())
-  }
-  "clientAdditionalRuntimeClasspath" {
-    extendsFrom(jarJar.get())
-  }
 }
 
 kotlin {

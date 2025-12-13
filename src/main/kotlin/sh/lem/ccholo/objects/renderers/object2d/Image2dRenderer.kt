@@ -19,7 +19,6 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
-import org.cache2k.Cache2kBuilder
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.CCHolo.MOD_ID
 import sh.lem.ccholo.canvas.CanvasRootClient
@@ -38,14 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger
 object Image2dRenderer: BaseObjectRenderer<Image2d> {
   private val mc by lazy { Minecraft.getInstance() }
 
-  private val imageCache = object : Cache2kBuilder<String, CachedImage>() {}
-    .entryCapacity(128)
-    .idleScanTime(Duration.ofMinutes(2))
-    .loader { url -> CachedImage(url).also { it.load() } }
-    .build()
-
-  private val imageCache2 = CacheBuilder.newBuilder()
-    .expireAfterAccess(Duration.ofSeconds(5))
+  private val imageCache = CacheBuilder.newBuilder()
+    .expireAfterAccess(Duration.ofMinutes(2))
     .maximumSize(128)
     .removalListener { notif: RemovalNotification<String, CachedImage> ->
       notif.value?.close()
