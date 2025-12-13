@@ -281,6 +281,25 @@ frame2d.setRotation(45, 45, 45) -- in degrees
 -- ObjectFrame2d.setSize(width:number, height:number)
 -- plus all of the add* methods from the 2D canvas (shown above)
 
+-- Image2d
+--   function(url:string, x:number, y:number, width:number, height:number, [fallbackColour:number]):Image2d
+--   -- width and height MUST be specified and must match the image exactly (otherwise it will be scaled)
+--   -- fallbackColour will be rendered in a width x height rectangle before the image loads, and if the image fails
+--   -- fallbackColour defaults to fully transparent (won't render any fallback)
+--   -- Images will be cached for approximately 2 minutes after last access. There is a limit of 128 cached images,
+--   --   i.e. a limit of 128 images at any time.
+local image2d = canvas2d.addImage("https://ame.fyi/glCrime.png", 0, 200, 425, 290, 0xFF000055)
+-- Image2d.setUrl(url:string)
+-- Image2d.setPosition(x:number, y:number)
+-- Image2d.setScale(scale:number) -- defaults to 1
+-- Image2d.setSize(width:number, height:number)
+-- Image2d.setColour(rrggbbaa:number) -- will tint the image/change its opacity
+-- Image2d.setColour(r:number, g:number, b:number[, a:number])
+-- Image2d.setAlpha(alpha:number) -- image opacity
+-- Image2d.setFallbackColour(rrggbbaa:number) -- rectangle, only if the image isn't loaded
+-- Image2d.setFallbackColour(r:number, g:number, b:number[, a:number])
+-- Image2d.setFallbackAlpha(alpha:number)
+
 while true do
   rect1.setSize((math.sin(os.epoch("utc") / 1000) * 16) + 32, 16)
   item2d2.setScale(math.sin(os.epoch("utc") / 1000) + 1.5)

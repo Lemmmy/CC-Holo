@@ -211,4 +211,27 @@ interface Group2d : ObjectGroup {
     canvasRootServer.add(frame)
     return frame
   }
+
+  /**
+   * function(url:string, x:number, y:number, width:number, height:number, [fallbackColour:number]):Image2d
+   * -- Create a new image.
+   */
+  @LuaFunction
+  fun addImage(args: IArguments): Image2d {
+    val url = args.getString(0)
+    val pos = args.getVec2(1)
+    val width = args.assertIntBetween(3, 1, Image2d.MAX_IMAGE_WIDTH, "Width out of range (%s)")
+    val height = args.assertIntBetween(4, 1, Image2d.MAX_IMAGE_HEIGHT, "Height out of range (%s)")
+    val fallbackColour = args.optInt(5)
+
+    val image = Image2d(canvasRootServer.newObjectId(), id, canvasRootServer)
+    image.position = pos
+    image.imageUrl = url
+    image.imageWidth = width
+    image.imageHeight = height
+    fallbackColour.ifPresent { image.fallbackColour = it }
+
+    canvasRootServer.add(image)
+    return image
+  }
 }

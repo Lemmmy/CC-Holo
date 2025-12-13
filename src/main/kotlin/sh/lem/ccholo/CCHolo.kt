@@ -12,21 +12,31 @@ import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.registries.DeferredRegister
 import net.minecraftforge.registries.ForgeRegistries
+import org.cache2k.Cache2kBuilder
 import org.slf4j.LoggerFactory
 import sh.lem.ccholo.CCHolo.Items.HOLOGRAM_BLOCK_ITEM
 import sh.lem.ccholo.networking.CCHoloPacketHandler
+import sh.lem.ccholo.objects.renderers.object2d.Image2dRenderer.CachedImage
 import sh.lem.ccholo.peripheral.HologramBlock
 import sh.lem.ccholo.peripheral.HologramBlockEntity
 import sh.lem.ccholo.peripheral.HologramPeripheral
 import sh.lem.ccholo.util.PeripheralProvider
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
+import java.time.Duration
 
 @Mod(CCHolo.MOD_ID)
 object CCHolo {
   const val MOD_ID: String = "ccholo"
+  val MOD_VERSION by lazy {
+    ModList.get()
+      .getModContainerById(MOD_ID)
+      .map { it.modInfo.version.toString() }
+      .orElse("unknown")
+  }
 
   @JvmField
   val log = LoggerFactory.getLogger(MOD_ID)!!
@@ -93,5 +103,24 @@ object CCHolo {
     CCHoloPacketHandler.setup()
 
     DistExecutor.unsafeRunWhenOn(Dist.CLIENT) { Runnable { CCHoloClient.init() } }
+
+    // System.out.println(Cache2kCoreProviderImpl::class.java.toString())
+    // System.out.println(Cache2kCoreProviderImpl::class.java.protectionDomain.codeSource)
+    // System.out.println(Cache2kCoreProviderImpl::class.java.protectionDomain.classLoader == Thread.currentThread().contextClassLoader)
+    // val it = ServiceLoader.load<Cache2kCoreProvider?>(Cache2kCoreProvider::class.java).iterator()
+    // if (!it.hasNext()) {
+    //   System.out.println("No cache2k provider found")
+    // }
+    // while (it.hasNext()) {
+    //   System.out.println(it.next())
+    // }
+    // System.out.println(Cache2kCoreProviderImpl::class.java.classLoader == Thread.currentThread().contextClassLoader)
+    // System.out.println(Cache2kCoreProviderImpl::class.java.protectionDomain.classLoader == Thread.currentThread().contextClassLoader)
+
+    val imageCache = object : Cache2kBuilder<String, CachedImage>() {}
+      .entryCapacity(128)
+      .idleScanTime(Duration.ofMinutes(2))
+      .loader { url -> CachedImage(url).also { it.load() } }
+      .build()
   }
 }

@@ -9,7 +9,7 @@ forge = "47.4.9"
 parchment = "2023.09.03"
 
 # Plugins
-neoforged_legacyforge = "2.0.112"
+neoforged_legacyforge = "2.0.124"
 modrinth_minotaur = "2.+"
 
 # Libraries
@@ -17,6 +17,7 @@ kotlinforforge = "4.11.0"
 
 # Dependencies
 cc = "1.113.1"
+cache2k = "2.6.1.Final"
 
 [libraries]
 kotlinforforge = { module = "thedarkcolour:kotlinforforge", version.ref = "kotlinforforge" }
@@ -25,6 +26,9 @@ cc-core = { module = "cc.tweaked:cc-tweaked-1.20.1-core", version.ref = "cc" }
 cc-api-core = { module = "cc.tweaked:cc-tweaked-1.20.1-core-api", version.ref = "cc" }
 cc-api-forge = { module = "cc.tweaked:cc-tweaked-1.20.1-forge-api", version.ref = "cc" }
 cc-runtime = { module = "cc.tweaked:cc-tweaked-1.20.1-forge", version.ref = "cc" }
+
+cache2k-api = { module = "org.cache2k:cache2k-api", version.ref = "cache2k" }
+cache2k-core = { module = "org.cache2k:cache2k-core", version.ref = "cache2k" }
 
 [plugins]
 neoforged-legacyforge = { id = "net.neoforged.moddev.legacyforge", version.ref = "neoforged_legacyforge" }

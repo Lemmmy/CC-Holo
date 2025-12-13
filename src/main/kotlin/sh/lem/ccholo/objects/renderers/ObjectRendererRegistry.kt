@@ -21,13 +21,14 @@ object ObjectRendererRegistry {
       Lines2dRenderer,
       Item2dRenderer,
       ObjectGroup2dRenderer,
+      ObjectFrame2dRenderer,
+      Image2dRenderer,
 
       // 3D
       ObjectRoot3dRenderer,
       ObjectFrame3dRenderer,
       Box3dRenderer,
       Item3dRenderer,
-      ObjectFrame2dRenderer,
       null, // Line3dRenderer,
     )
   }
