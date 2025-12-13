@@ -124,6 +124,27 @@ fun IArguments.assertUtf8StringLength(index: Int, min: Int, max: Int,
   return value
 }
 
+fun IArguments.assertColour(index: Int, existingColour: Int = 0): Int {
+  val argCount = count() - index
+  return when (argCount) {
+    1 -> (getLong(0) and 0xFFFFFFFFL).toInt()
+    3 -> {
+      val r = getInt(0) and 0xFF
+      val g = getInt(1) and 0xFF
+      val b = getInt(2) and 0xFF
+      (r shl 24) or (g shl 16) or (b shl 8) or (existingColour and 0xFF)
+    }
+    4 -> {
+      val r = getInt(0) and 0xFF
+      val g = getInt(1) and 0xFF
+      val b = getInt(2) and 0xFF
+      val a = getInt(3) and 0xFF
+      (r shl 24) or (g shl 16) or (b shl 8) or a
+    }
+    else -> throw IllegalArgumentException("Expected ${index + 1}, ${index + 3}, or ${index + 4} arguments, got ${count()}")
+  }
+}
+
 private fun Map<*, *>.getFiniteDouble(key: Any): Double {
   val obj = this[key] ?: throw LuaException("Expected number for key $key, got nil")
   if (obj !is Number) throw badKey(obj, key.toString(), "number")

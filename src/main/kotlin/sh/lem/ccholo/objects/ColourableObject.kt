@@ -5,6 +5,7 @@ import dan200.computercraft.api.lua.LuaFunction
 import net.minecraft.network.FriendlyByteBuf
 import sh.lem.ccholo.canvas.CanvasRoot
 import sh.lem.ccholo.util.DirtyingProperty
+import sh.lem.ccholo.util.assertColour
 
 const val DEFAULT_COLOUR = 0xFFFFFFFFL
 
@@ -36,23 +37,7 @@ abstract class ColourableObject(
    */
   @LuaFunction("setColor", "setColour")
   fun setColour(args: IArguments) {
-    when (args.count()) {
-      1 -> colour = (args.getLong(0) and 0xFFFFFFFFL).toInt()
-      3 -> {
-        val r = args.getInt(0) and 0xFF
-        val g = args.getInt(1) and 0xFF
-        val b = args.getInt(2) and 0xFF
-        colour = (r shl 24) or (g shl 16) or (b shl 8) or (colour and 0xFF)
-      }
-      4 -> {
-        val r = args.getInt(0) and 0xFF
-        val g = args.getInt(1) and 0xFF
-        val b = args.getInt(2) and 0xFF
-        val a = args.getInt(3) and 0xFF
-        colour = (r shl 24) or (g shl 16) or (b shl 8) or a
-      }
-      else -> throw IllegalArgumentException("Expected 1, 3, or 4 arguments, got ${args.count()}")
-    }
+    colour = args.assertColour(0, colour)
   }
 
   /**
