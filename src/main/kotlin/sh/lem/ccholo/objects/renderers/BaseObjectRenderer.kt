@@ -1,5 +1,6 @@
 package sh.lem.ccholo.objects.renderers
 
+import com.mojang.blaze3d.platform.GlConst.*
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
@@ -28,6 +29,11 @@ interface BaseObjectRenderer<T : BaseObject> {
     fun setupFlat() {
       RenderSystem.disableCull()
       RenderSystem.enableBlend()
+      RenderSystem.blendEquation(GL_FUNC_ADD)
+      RenderSystem.blendFuncSeparate(
+        GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+        GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+      )
       RenderSystem.setShader(GameRenderer::getPositionColorShader)
     }
   }
