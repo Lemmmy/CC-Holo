@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.Vec2
@@ -28,6 +29,8 @@ class Item2d(
   internal var stack: ItemStack? = null
   override var item: Item? by DirtyingProperty(Items.STONE) { _, _, _ -> stack = null }
   override var nbt: CompoundTag? by DirtyingProperty(null) { _, _, _ -> stack = null }
+  override var displayContext: ItemDisplayContext by DirtyingProperty(ItemDisplayContext.GUI)
+  override var forceUnlit: Boolean by DirtyingProperty(false)
 
   override fun readInitial(buf: FriendlyByteBuf) {
     position = buf.readVec2()
@@ -36,6 +39,8 @@ class Item2d(
     val id = ResourceLocation.tryParse(buf.readUtf())
     item = ForgeRegistries.ITEMS.getValue(id)
     nbt = buf.readNullable(FriendlyByteBuf::readNbt)
+    displayContext = ItemDisplayContext.valueOf(buf.readUtf())
+    forceUnlit = buf.readBoolean()
   }
 
   override fun writeInitial(buf: FriendlyByteBuf) {
@@ -43,5 +48,7 @@ class Item2d(
     buf.writeFloat(scale)
     buf.writeUtf(ForgeRegistries.ITEMS.getKey(item).toString())
     buf.writeNullable(nbt, FriendlyByteBuf::writeNbt)
+    buf.writeUtf(displayContext.name)
+    buf.writeBoolean(forceUnlit)
   }
 }

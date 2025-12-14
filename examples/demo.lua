@@ -68,6 +68,9 @@ local item3d3 = group3d.addItem(x, y + 4, z + 2, "minecraft:diamond_pickaxe", 0.
 -- Item3d.setRotation()
 -- Item3d.setScale(scale:number)
 -- Item3d.setDepthTested(depthTested:boolean)
+-- Item3d.setDisplayContext(ctx:string) -- must be "none", "gui", "ground", "head", "fixed", "thirdperson_lefthand",
+--   "thirdperson_righthand", "firstperson_lefthand", "firstperson_righthand", or any modded display context.
+--   For 3D items, this defaults to "none".
 
 item3d1.setRotation(0, 0, 0) -- reset rotation (defaults to 0, 0, 0)
 item3d2.setRotation(45, 45, 0) -- in degrees
@@ -254,9 +257,16 @@ lines3.setCap("round")
 local item2d1 = canvas2d.addItem(4, 32, "minecraft:stone")
 local item2d2 = canvas2d.addItem(24, 32, "minecraft:diamond_pickaxe", 2) -- with scale
 local item2d3 = canvas2d.addItem(64, 32, "computercraft:turtle_advanced{RightUpgrade:'minecraft:diamond_pickaxe'}", 0.5)
+local item2d4 = canvas2d.addItem(80, 32, "minecraft:stone")
+item2d4.setDisplayContext("none")
+item2d4.setForcedUnlit(true)
 -- Item2d.setItem(item:string) -- may have NBT in the /give format, e.g. `stick{foo:bar}`
 -- Item2d.setPosition(x:number, y:number)
 -- Item2d.setScale(scale:number)
+-- Item2d.setDisplayContext(ctx:string) -- must be "none", "gui", "ground", "head", "fixed", "thirdperson_lefthand",
+--   "thirdperson_righthand", "firstperson_lefthand", "firstperson_righthand", or any modded display context
+--   For 2D items, this defaults to "gui".
+-- Item2d.setForcedUnlit(unlit:boolean) -- off by default. attempts to render the item unlit
 
 -- ObjectGroup2d
 --   function(x:number, y:number):ObjectGroup2d

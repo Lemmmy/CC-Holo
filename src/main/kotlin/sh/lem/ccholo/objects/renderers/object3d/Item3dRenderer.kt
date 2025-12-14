@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.LightTexture.FULL_BRIGHT
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY
-import net.minecraft.world.item.ItemDisplayContext
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import sh.lem.ccholo.canvas.CanvasRootClient
@@ -47,8 +46,7 @@ object Item3dRenderer: BaseObjectRenderer<Item3d> {
         RenderSystem.disableDepthTest()
       }
 
-      itemRenderer.renderStatic(stack, ItemDisplayContext.NONE, FULL_BRIGHT, NO_OVERLAY, poseStack,
-        immediate, mc.level, 0)
+      itemRenderer.renderStatic(stack, displayContext, FULL_BRIGHT, NO_OVERLAY, poseStack, immediate, mc.level, 0)
 
       immediate.endBatch()
 

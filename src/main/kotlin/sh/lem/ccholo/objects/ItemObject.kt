@@ -12,8 +12,10 @@ import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.util.StringRepresentable
 import net.minecraft.world.flag.FeatureFlagSet
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.registries.ForgeRegistries
 import sh.lem.ccholo.CCHolo
@@ -22,6 +24,8 @@ import sh.lem.ccholo.util.getItem
 interface ItemObject {
   var item: Item?
   var nbt: CompoundTag?
+  var displayContext: ItemDisplayContext
+  var forceUnlit: Boolean
 
   /**
    * function():string -- Get the item for this object.
@@ -53,8 +57,41 @@ interface ItemObject {
     }
   }
 
+  /**
+   * function():string -- Return the display context for this item.
+   */
+  @LuaFunction
+  fun getDisplayContext(): MethodResult = MethodResult.of(displayContext.name)
+
+  /**
+   * function(displayContext:string) -- Set the display context for this item. Vanilla modes are "none", "gui",
+   *   "ground", "head", "fixed", "thirdperson_lefthand", "thirdperson_righthand", "firstperson_lefthand",
+   *   "firstperson_righthand".
+   */
+  @LuaFunction
+  fun setDisplayContext(args: IArguments) {
+    val ctxValue = args.getString(0)
+    displayContext = DISPLAY_CONTEXT_CODEC.byName(ctxValue)
+      ?: throw IllegalArgumentException("Invalid display context: $ctxValue")
+  }
+
+  /**
+   * function():boolean - Return whether this item attempts to be rendered unlit.
+   */
+  @LuaFunction
+  fun getForcedUnlit() = forceUnlit
+
+  /**
+   * function(unlit:boolean) - Sets whether this item attempts to be rendered unlit.
+   */
+  @LuaFunction
+  fun setForcedUnlit(args: IArguments) {
+    forceUnlit = args.getBoolean(0)
+  }
+
   companion object {
     private val errorLoggedInstances = IntOpenHashSet()
+    private val DISPLAY_CONTEXT_CODEC = StringRepresentable.fromEnum(ItemDisplayContext::values)
 
     @Throws(CommandSyntaxException::class)
     fun parseObject(
