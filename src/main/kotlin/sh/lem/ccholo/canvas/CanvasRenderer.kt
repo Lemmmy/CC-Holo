@@ -7,8 +7,10 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.client.event.RenderGuiOverlayEvent
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent
 import net.minecraftforge.client.event.RenderLevelStageEvent
+import net.minecraftforge.client.gui.overlay.ForgeGui
+import net.minecraftforge.client.gui.overlay.IGuiOverlay
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -20,14 +22,10 @@ object CanvasRenderer {
   private val mc by lazy { Minecraft.getInstance() }
 
   @SubscribeEvent
-  fun onOverlayPre(event: RenderGuiOverlayEvent.Pre) {
-    // Render 2D canvases before the hotbar (and before the spectator tablist; this mirrors the Fabric mixin which in
-    // turn was meant to mirror the original Forge event)
-    if (event.overlay === VanillaGuiOverlay.HOTBAR.type()) {
-      mc.profiler.push("plethora:renderCanvas2DOverlay")
-      renderCanvas2DOverlay()
-      mc.profiler.pop()
-    }
+  fun onRegisterGuiOverlays(event: RegisterGuiOverlaysEvent) {
+    // Render 2D canvases AFTER the hotbar (and still before the spectator tablist; this differs from the Fabric mixin
+    // which in turn was meant to mirror the original Forge event, which rendered before the hotbar)
+    event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), Canvas2dOverlay.ID, Canvas2dOverlay)
   }
 
   @SubscribeEvent
@@ -48,7 +46,7 @@ object CanvasRenderer {
     }
   }
 
-  fun renderCanvas2DOverlay() {
+  fun renderCanvas2dOverlay() {
     val children = CanvasRootClient.getChildren(CanvasRoot.ID_2D) ?: return
 
     // If we've no text renderer then we're probably not quite ready yet
@@ -89,5 +87,21 @@ object CanvasRenderer {
     val gg = GuiGraphics(mc, poseStack, buf)
 
     CanvasRootClient.drawChildren(children.iterator(), gg, buf)
+  }
+
+  object Canvas2dOverlay : IGuiOverlay {
+    const val ID = "canvas_2d"
+
+    override fun render(
+      gui: ForgeGui?,
+      gg: GuiGraphics?,
+      partialTick: Float,
+      screenWidth: Int,
+      screenHeight: Int
+    ) {
+      mc.profiler.push("plethora:renderCanvas2DOverlay")
+      renderCanvas2dOverlay()
+      mc.profiler.pop()
+    }
   }
 }

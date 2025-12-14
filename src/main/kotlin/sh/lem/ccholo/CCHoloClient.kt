@@ -7,6 +7,7 @@ import net.minecraftforge.client.settings.KeyConflictContext
 import net.minecraftforge.common.util.Lazy
 import org.lwjgl.glfw.GLFW
 import sh.lem.ccholo.CCHolo.MOD_ID
+import sh.lem.ccholo.canvas.CanvasRenderer
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 object CCHoloClient {
@@ -28,5 +29,6 @@ object CCHoloClient {
 
   fun init() {
     MOD_BUS.addListener(KeyBindings::onRegisterKeyMappings)
+    MOD_BUS.addListener(CanvasRenderer::onRegisterGuiOverlays)
   }
 }
