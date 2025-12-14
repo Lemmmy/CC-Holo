@@ -45,8 +45,11 @@ object ObjectFrame3dRenderer: BaseObjectRenderer<ObjectFrame3d> {
       poseStack.pushPose()
 
       poseStack.translate(position.x, position.y, position.z)
+
       poseStack.scale(scale, -scale, scale)
-      Rotatable3dRenderer.applyRotation(gg, rotation, true)
+      poseStack.translate(w / 2f, h / 2f, 0f)
+      Rotatable3dRenderer.applyRotation(gg, rotation, false)
+      poseStack.translate(-w / 2f, -h / 2f, 0f)
 
       if (hasDepthTest) {
         RenderSystem.enableDepthTest()
