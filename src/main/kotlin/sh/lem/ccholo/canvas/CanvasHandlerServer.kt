@@ -1,5 +1,6 @@
 package sh.lem.ccholo.canvas
 
+import dan200.computercraft.api.peripheral.IComputerAccess
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
@@ -10,11 +11,13 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.server.ServerLifecycleHooks
 import sh.lem.ccholo.CCHolo
+import sh.lem.ccholo.networking.HitResultTable
 import sh.lem.ccholo.networking.send
 import sh.lem.ccholo.peripheral.HologramPeripheral
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 @Mod.EventBusSubscriber
 object CanvasHandlerServer {
@@ -26,7 +29,37 @@ object CanvasHandlerServer {
   // TODO: Consider memory trade-offs here, maybe add a timeout to remove old roots?
   private val roots = ConcurrentHashMap<UUID, CanvasRootServer>()
 
+  private val pendingRaycasts = ConcurrentHashMap<Long, PendingRaycast>()
+  private val raycastId = AtomicLong(0)
+
+  private val server
+    get() = ServerLifecycleHooks.getCurrentServer()
+
   fun nextId() = lastId.getAndIncrement()
+
+  fun requestRaycast(
+    player: ServerPlayer?,
+    range: Double,
+    computer: IComputerAccess
+  ): PendingRaycast {
+    val id = raycastId.getAndIncrement()
+    return PendingRaycast(id, range, player, server.overworld().gameTime, computer).also {
+      pendingRaycasts[id] = it
+      it.send() // Send the raycast request to the player if the player is currently available
+    }
+  }
+
+  fun respondToRaycast(player: ServerPlayer, id: Long, hitTable: HitResultTable?) {
+    pendingRaycasts.computeIfPresent(id) { _, raycast ->
+      if (raycast.player != player) {
+        CCHolo.log.warn("Received raycast request for a different player? Expected ${raycast.player}, got $player")
+        return@computeIfPresent raycast
+      }
+
+      raycast.respond(hitTable)
+      null
+    }
+  }
 
   /// Get the canvas root for a player, creating a new one if necessary. Assumes the player is currently online.
   @SideOnly(Side.SERVER)
@@ -70,9 +103,15 @@ object CanvasHandlerServer {
   @SubscribeEvent
   @SideOnly(Side.SERVER)
   fun update(event: TickEvent.ServerTickEvent) {
-    ServerLifecycleHooks.getCurrentServer().playerList.players.forEach { p ->
+    val server = event.server
+
+    server.playerList.players.forEach { p ->
       val root = roots[p.gameProfile.id] ?: return@forEach
       root.makeUpdatePacket()?.send(p) // Send the update packet. Returns null if there are no changes to send
+    }
+
+    pendingRaycasts.entries.removeIf { (_, raycast) ->
+      raycast.tick(server)
     }
   }
 
@@ -86,7 +125,7 @@ object CanvasHandlerServer {
     roots.forEach { (uuid, root) ->
       root.reset()
 
-      val p = ServerLifecycleHooks.getCurrentServer().playerList.getPlayer(uuid) ?: return@forEach
+      val p = server.playerList.getPlayer(uuid) ?: return@forEach
       CCHolo.log.debug("Sending canvas removal packet to player {} ({})", p.gameProfile.name, p.gameProfile.id)
       root.makeInitPacket()?.send(p)
     }

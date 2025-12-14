@@ -119,6 +119,10 @@ hologram.clearKeyCaptures(username)
 -- hologram.startCapture(username, true, true, true) -- hide the 'Press Escape to close' text at the top of the screen
 -- hologram.stopCapture(username)
 
+-- Raycast:
+-- hologram.requestRaycast(username, range=20) -- returns hitResult or nil
+-- hologram.requestRaycastAsync(username, range=20) -- returns playerName, playerUuid, requestId. fires hologram_raycast
+
 -- Global key capture:
 hologram.startKeyCapture(username, keys.g)
 hologram.startKeyCapture(username, keys.h)
@@ -158,6 +162,18 @@ logPrint("Press J to open a link")
 -- `hologram_mouse_scroll`
 --   Fired when the mouse wheel is scrolled while in capture mode.
 --   Parameters: player:string, uuid:string, direction:number, x:number, y:number, raycast:table
+-- `hologram_capture_stop`
+--   Fired when capture mode is stopped for a player.
+--   Parameters: player:string, uuid:string, reason:string
+-- `hologram_screen_size`
+--   Fired when a player's screen size changes.
+--   Parameters: player:string, uuid:string, screen_width:number, screen_height:number, gui_scaled_width:number,
+--               gui_scaled_height:number, gui_scale:number
+-- `hologram_raycast`
+--   Fired when a raycast response is received from a player. `hologram.requestRaycast()` will wait for this event. If
+--     the raycast was requested synchronously, and the player goes offline or doesn't respond to the raycast request,
+--     it will time out after 40 ticks and return a nil table.
+--   Parameters: player:string, uuid:string, requestId:number, raycast:table|nil
 --
 -- Raycast table format:
 --   raycast = {
@@ -177,14 +193,6 @@ logPrint("Press J to open a link")
 --     }
 --   }
 --   Both blockHit and entityHit are nil if nothing was hit.
---
--- `hologram_capture_stop`
---   Fired when capture mode is stopped for a player.
---   Parameters: player:string, uuid:string, reason:string
--- `hologram_screen_size`
---   Fired when a player's screen size changes.
---   Parameters: player:string, uuid:string, screen_width:number, screen_height:number, gui_scaled_width:number,
---               gui_scaled_height:number, gui_scale:number
 
 while true do
   local data = {os.pullEvent()}

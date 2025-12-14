@@ -8,6 +8,7 @@ import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.EntityHitResult
 import net.minecraft.world.phys.Vec3
+import sh.lem.ccholo.canvas.DEFAULT_RAYCAST_RANGE
 import thedarkcolour.kotlinforforge.forge.vectorutil.v3d.toVec3
 import kotlin.math.tan
 
@@ -32,7 +33,7 @@ object RaycastUtil {
     screenY: Double,
     screenWidth: Int,
     screenHeight: Int,
-    reach: Double = 20.0
+    reach: Double = DEFAULT_RAYCAST_RANGE
   ): RaycastResult {
     val mc = Minecraft.getInstance()
     val camera = mc.gameRenderer.mainCamera

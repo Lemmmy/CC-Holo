@@ -16,10 +16,9 @@ object CCHoloPacketHandler {
     PROTOCOL_VERSION::equals
   )
 
-  @Suppress("AssignedValueIsNeverRead")
-  internal fun setup() {
-    var id = 0
+  var id = 0
 
+  internal fun setup() {
     // S->C
     channel.messageBuilder(S2CCanvasInitPacket::class.java, id++, PLAY_TO_CLIENT)
       .encoder(S2CCanvasInitPacket::encode)
@@ -49,6 +48,12 @@ object CCHoloPacketHandler {
       .encoder(S2CCanvasOpenLinkPacket::encode)
       .decoder(S2CCanvasOpenLinkPacket::decode)
       .consumerMainThread(S2CCanvasOpenLinkPacket::handle)
+      .add()
+
+    channel.messageBuilder(S2CCanvasRequestRaycastPacket::class.java, id++, PLAY_TO_CLIENT)
+      .encoder(S2CCanvasRequestRaycastPacket::encode)
+      .decoder(S2CCanvasRequestRaycastPacket::decode)
+      .consumerMainThread(S2CCanvasRequestRaycastPacket::handle)
       .add()
 
     // C->S
@@ -92,6 +97,12 @@ object CCHoloPacketHandler {
       .encoder(C2SCanvasScreenSizePacket::encode)
       .decoder(C2SCanvasScreenSizePacket::decode)
       .consumerMainThread(C2SCanvasScreenSizePacket::handle)
+      .add()
+
+    channel.messageBuilder(C2SCanvasRaycastPacket::class.java, id++, PLAY_TO_SERVER)
+      .encoder(C2SCanvasRaycastPacket::encode)
+      .decoder(C2SCanvasRaycastPacket::decode)
+      .consumerMainThread(C2SCanvasRaycastPacket::handle)
       .add()
   }
 

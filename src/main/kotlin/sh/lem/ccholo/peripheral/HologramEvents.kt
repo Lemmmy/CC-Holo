@@ -67,4 +67,12 @@ object HologramEvents {
    * guiScaledHeight:number, guiScale:number
    */
   const val EVENT_SCREEN_SIZE = "hologram_screen_size"
+
+  /**
+   * Event fired when a raycast response is received from a player. `hologram.requestRaycast()` will wait for this
+   *   event. If the raycast was requested synchronously, and the player goes offline or doesn't respond to the raycast
+   *   request, it will time out after 40 ticks and return a nil table.
+   * Parameters: player:string, uuid:string, requestId:number, raycast:table|nil
+   */
+  const val EVENT_RAYCAST = "hologram_raycast"
 }

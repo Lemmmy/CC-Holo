@@ -1,16 +1,15 @@
 package sh.lem.ccholo.peripheral
 
-import dan200.computercraft.api.lua.IArguments
-import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaFunction
-import dan200.computercraft.api.lua.MethodResult
+import dan200.computercraft.api.lua.*
 import dan200.computercraft.api.peripheral.IComputerAccess
 import dan200.computercraft.api.peripheral.IPeripheral
 import net.minecraft.server.level.ServerPlayer
+import net.minecraftforge.server.ServerLifecycleHooks
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.canvas.CanvasHandlerServer
 import sh.lem.ccholo.canvas.CanvasRoot.Companion.MAX_KEY_CODE
 import sh.lem.ccholo.canvas.CanvasRootServer
+import sh.lem.ccholo.canvas.DEFAULT_RAYCAST_RANGE
 import sh.lem.ccholo.networking.S2CCanvasOpenLinkPacket
 import sh.lem.ccholo.networking.S2CCanvasSetClipboardPacket
 import sh.lem.ccholo.objects.object2d.RootFrame2d
@@ -53,7 +52,7 @@ class HologramPeripheral(
   /**
    * function(player:string):RootFrame2d -- Gets the 2D canvas methods for a player.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun getCanvas2d(playerName: String): RootFrame2d {
     val (_, root) = getPlayerCanvasRoot(playerName)
     return root.canvas2d
@@ -63,7 +62,7 @@ class HologramPeripheral(
    * function(player:string):Origin3d -- Gets the 3D canvas methods for a player in the same world that the hologram
    *   peripheral is in.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun getCanvas3d(playerName: String): WrappedOrigin3d {
     val (_, root) = getPlayerCanvasRoot(playerName)
     return WrappedOrigin3d(this, root.canvas3d)
@@ -72,7 +71,7 @@ class HologramPeripheral(
   /**
    * function() -- Clear all canvases in the server
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun clearAllCanvasesGlobally() {
     CanvasHandlerServer.clearAllRoots()
   }
@@ -85,7 +84,7 @@ class HologramPeripheral(
    * If `hideText` is `true`, then the text that tells the player how to exit capture mode will be hidden. Use with
    *   caution, as it may confuse players who do not realise they are in capture mode.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun startCapture(
     playerName: String,
     includeMouseMove: Optional<Boolean>,
@@ -99,7 +98,7 @@ class HologramPeripheral(
   /**
    * function(player:string) -- Stops capturing all mouse and keyboard inputs for a player.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun stopCapture(playerName: String) {
     val (player, root) = getPlayerCanvasRoot(playerName)
     root.stopCapture(player, true)
@@ -109,7 +108,7 @@ class HologramPeripheral(
    * function(player:string, keyCode:number) -- Starts capturing a specific keyboard input for a player, even during
    *   gameplay.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun startKeyCapture(playerName: String, keyCode: Int) {
     assertIntBetweenImpl(keyCode, 0, MAX_KEY_CODE, "key code out of bounds (%s)")
     val (player, root) = getPlayerCanvasRoot(playerName)
@@ -119,7 +118,7 @@ class HologramPeripheral(
   /**
    * function(player:string, keyCode:number) -- Stops capturing a specific keyboard input for a player.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun stopKeyCapture(playerName: String, keyCode: Int) {
     assertIntBetweenImpl(keyCode, 0, MAX_KEY_CODE, "key code out of bounds (%s)")
     val (player, root) = getPlayerCanvasRoot(playerName)
@@ -129,7 +128,7 @@ class HologramPeripheral(
   /**
    * function(player:string) -- Clear all key captures for a player (does not stop capture mode).
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun clearKeyCaptures(playerName: String) {
     val (player, root) = getPlayerCanvasRoot(playerName)
     root.clearKeyCaptures(player)
@@ -138,7 +137,7 @@ class HologramPeripheral(
   /**
    * function(player:string, clipboard:string) -- Sets the clipboard for a player.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun setClipboard(args: IArguments) {
     val playerName = args.getString(0)
     val clipboard = args.assertUtf8StringLength(1, 1, S2CCanvasSetClipboardPacket.PASTE_LIMIT)
@@ -150,7 +149,7 @@ class HologramPeripheral(
   /**
    * function(player:string, url:string) -- Prompts a player to open the given URL.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun openLink(args: IArguments) {
     val playerName = args.getString(0)
     val url = args.assertUtf8StringLength(1, 1, S2CCanvasOpenLinkPacket.URL_LIMIT)
@@ -163,10 +162,54 @@ class HologramPeripheral(
    * function(player:string):string,number -- Returns a player's timezone, as an IANA timezone ID string, and a
    *   UTC offset in seconds.
    */
-  @LuaFunction(unsafe = true)
+  @LuaFunction(mainThread = true)
   fun getTimezone(playerName: String): MethodResult {
     val (_, root) = getPlayerCanvasRoot(playerName)
     return MethodResult.of(root.timezone, root.timezoneOffsetSeconds)
+  }
+
+  /**
+   * function(player:string[, range:number=20]) -- Requests a raycast for a player asynchronously.
+   * The raycast will be requested asynchronously and the result will be returned in a hologram_raycast event.
+   *   requestRaycast will return the player name, UUID, and request ID.
+   * If the player goes offline or doesn't respond to the raycast request, it will time out after 40 ticks and return a
+   *   nil table.
+   */
+  @LuaFunction(mainThread = true)
+  fun requestRaycastAsync(
+    playerName: String,
+    range: Optional<Double>,
+    computer: IComputerAccess,
+  ): MethodResult {
+    val (player, _) = getPlayerCanvasRoot(playerName)
+    val raycast = CanvasHandlerServer.requestRaycast(player, range.orElse(DEFAULT_RAYCAST_RANGE), computer)
+    return MethodResult.of(player.gameProfile.name, player.gameProfile.id.toString(), raycast.requestId)
+  }
+
+  /**
+   * function(player:string[, range:number=20]) -- Requests a raycast for a player.
+   * Will yield and wait for the result from the player, and return the result table or `nil`.
+   * If the player goes offline or doesn't respond to the raycast request, it will time out after 40 ticks and return a
+   *   nil table.
+   */
+  @LuaFunction
+  fun requestRaycast(
+    playerName: String,
+    range: Optional<Double>,
+    ctx: ILuaContext,
+    computer: IComputerAccess,
+  ): MethodResult {
+    // Since this is off-thread, we can't check the player yet. Create the raycast request, then queue a separate
+    // main-thread task to fetch the player and send it. Cancel the request immediately if the player goes offline.
+    val raycast = CanvasHandlerServer.requestRaycast(null, range.orElse(DEFAULT_RAYCAST_RANGE), computer)
+
+    ServerLifecycleHooks.getCurrentServer().executeIfPossible {
+      val (player, _) = getPlayerCanvasRoot(playerName)
+      raycast.player = player
+      raycast.send()
+    }
+
+    return RaycastTaskCallback.make(ctx, raycast)
   }
 
   override fun attach(computer: IComputerAccess) {

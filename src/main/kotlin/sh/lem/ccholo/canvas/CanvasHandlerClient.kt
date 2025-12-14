@@ -10,6 +10,8 @@ import net.minecraftforge.fml.common.Mod
 import sh.lem.ccholo.CCHolo
 import sh.lem.ccholo.networking.*
 import sh.lem.ccholo.objects.renderers.FramebufferPool
+import sh.lem.ccholo.util.RaycastUtil
+import sh.lem.ccholo.util.toEntityHitInfo
 import java.net.URI
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -86,6 +88,31 @@ object CanvasHandlerClient {
       }, msg.url, false))
     } catch (e: Exception) {
       CCHolo.log.error("Error while opening link", e)
+    }
+  }
+
+  internal fun onCanvasRequestRaycastPacket(msg: S2CCanvasRequestRaycastPacket) {
+    if (!checkMainThread("S2CCanvasRequestRaycastPacket")) return
+
+    try {
+      val width = mc.window.width
+      val height = mc.window.height
+
+      val raycast = RaycastUtil.raycastFromScreen(
+        if (mc.screen != null) mc.mouseHandler.xpos() else width / 2.0,
+        if (mc.screen != null) mc.mouseHandler.ypos() else height / 2.0,
+        width,
+        height,
+        msg.range
+      )
+
+      C2SCanvasRaycastPacket(
+        requestId = msg.requestId,
+        blockHit = raycast.blockHit,
+        entityHit = raycast.entityHit?.toEntityHitInfo()
+      ).send()
+    } catch (e: Exception) {
+      CCHolo.log.error("Error while handling raycast request", e)
     }
   }
 

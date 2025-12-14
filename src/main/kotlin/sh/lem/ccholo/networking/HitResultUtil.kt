@@ -5,6 +5,8 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.registries.ForgeRegistries
 import sh.lem.ccholo.util.EntityHitInfo
 
+typealias HitResultTable = Map<String, Any?>
+
 object HitResultUtil {
   /**
    * Creates a Lua table (Map) containing both block and entity hit results.
@@ -14,7 +16,7 @@ object HitResultUtil {
     blockHit: BlockHitResult?,
     entityHit: EntityHitInfo?,
     level: Level
-  ): Map<String, Any?> {
+  ): HitResultTable {
     return mapOf(
       "blockHit" to blockHit?.let { serializeBlockHit(it, level) },
       "entityHit" to entityHit?.let { serializeEntityHit(it, level) }
