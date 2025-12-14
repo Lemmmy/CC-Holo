@@ -42,6 +42,8 @@ local box1 = group3d.addBox(x, y + 1, z - 2)
 local box2 = group3d.addBox(x, y + 2, z    , 1.25, 1.25, 1.25) -- with size
 local box3 = group3d.addBox(x, y + 2, z + 2, 0xFF000055) -- with colour in RRGGBBAA format
 -- Box3d.setPosition(x:number, y:number, z:number)
+-- Box3d.setRotation(x:number, y:number, z:number) -- can be rotated in 3D
+-- Box3d.setRotation()
 -- Box3d.setSize(width:number, height:number, depth:number)
 -- Box3d.setColour(rrggbbaa:number)
 -- Box3d.setColour(r:number, g:number, b:number[, a:number])
