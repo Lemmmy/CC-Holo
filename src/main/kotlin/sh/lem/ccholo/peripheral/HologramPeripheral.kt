@@ -39,9 +39,8 @@ class HologramPeripheral(
     val uuid = tryParseUuid(nameOrUuid)
     val name = nameOrUuid.trim().lowercase()
 
-    val player = blockEntity.level?.players()
+    val player = blockEntity.level?.server?.playerList?.players
       ?.firstOrNull { it.gameProfile.id == uuid || it.gameProfile.name.lowercase() == name }
-      as? ServerPlayer
       ?: throw LuaException("Player '$nameOrUuid' not found")
 
     val root = CanvasHandlerServer.getRootForPlayer(player)
